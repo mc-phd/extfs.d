@@ -7,54 +7,63 @@ Author: Oleg BroytMann <phd@phd.pp.ru>.
 Copyright (C) 2004 PhiloSoft Design.
 License: GPL.
 
-Manipulate a cell phone's filesystem calling obexftp binary. This is a complete
-user-mode solution, no kernel modules required (unlike SieFS or such). The
-script implements all commands of Midnight VFS, except for undocumented "run";
-but there are no runnable files in the cell phone. The script is written in
-Python because I love Python, the best of all languages, and I need to parse
-XML directory listings from obexftp.
+Manipulate a cell phone's filesystem calling obexftp binary. This is a
+complete user-mode solution, no kernel modules required (unlike SieFS or
+such). The script implements all commands of Midnight VFS, except for
+undocumented "run"; anyway there are no runnable files in the cell phone. The
+script is written in Python because I love Python, the best of all languages ;),
+and I need to parse XML directory listings from obexftp.
 
 The script requires Midnight Commander 3.1+ (http://www.ibiblio.org/mc/),
 Python 2.2+ (http://www.python.org/),
-OpenOBEX 1.0.1+ (http://openobex.sourceforge.net/)
-and ObexFTP 0.10.4+ (http://triq.net/obexftp).
+OpenOBEX 1.0.1+ (http://openobex.sourceforge.net/) and
+ObexFTP 0.10.4+ (http://triq.net/obexftp).
 
 Edit the script, and correct the shebang path, if your python is not in the
 /usr/local. Edit the full path to the obexftp binary (see below). Put the file
 in the /usr/[local/]lib/mc/extfs, and add a line "obexftp" to the
 /usr/[local/]lib/mc/extfs/extfs.ini.
 
-Create somewhere a transport file. The transport file can have any name, and is
-expected to be a text file with at least one line defining the transport to
+Create somewhere a transport file. The transport file may have any name, and
+is expected to be a text file with at least one line defining the transport to
 your device. Other lines in the file are ignored.
 
 First word in the line is a transport name - Bluetooth, TTY or IrDA. The name
 is case-insensitive.
 
 For the Bluetooth transport put there a line "Bluetooth CP:AD:RE:SS channel",
-where CP:AD:RE:SS is the hardware address of the device you want to connect to,
-and channel is the OBEX File Transfer channel; you can discover the address and
-the channel for your device by using commands like "hcitool scan" and "sdptool
-browse".
+where CP:AD:RE:SS is the hardware address of the device you want to connect
+to, and "channel" is the OBEX File Transfer channel; you can discover the
+address and the channel for your device by using commands like "hcitool scan"
+and "sdptool browse".
 
 For the TTY put the device name: "tty /dev/ttyUSB0".
 
 For the IrDA: just put "IrDA" in the file.
 
-Now run this "cd" command in the Midnight Commander (in the "bindings" files
-the command is "%cd"): cd description#obexftp, where "description" is the name
-of your file. The VFS script uses obexftp to connect to the device and list
-files and directories. Please be warned that opening the VFS for the first time
-is VERY slow, because the script needs to scan the entire cell phone's
+Now run this "cd" command in the Midnight Commander (in the "bindings" file
+the command is "%cd"): cd transport#obexftp, where "transport" is the name of
+your transport file. The script uses obexftp to connect to the device and list
+files and directories. Please be warned that opening the VFS for the first
+time is VERY slow, because the script needs to scan the entire cell phone's
 filesystem. And there must be timeouts between connections, which don't make
-the scanning faster. Midnight Commander caches the result, so you can browse
-directories quickly.
+the scanning faster. Midnight Commander caches the result so you can browse
+and manipulate files and directories quickly.
+
+Please note that manipulating the filesystem using your phone's internal
+filemanager in parallel with the VFS leads to disagreement between the VFS
+cache and the phone. It is not very dangerous but inconvenient. There is no
+way to clear the VFS cache in Midnight Commander and reread the filesystem.
+You have to exit the VFS (cd /, for example) and return back using cd
+transport#obexftp command. Sometimes even this doesn't help - Midnight
+Commander shows the same cached VFS image. Exit Midnight Commander and
+restart it.
 
 """
 
-__version__ = "1.0.1"
-__revision__ = "$Id: obexftp,v 1.12 2004/06/23 16:05:34 phd Exp $"
-__date__ = "$Date: 2004/06/23 16:05:34 $"[7:-2]
+__version__ = "1.0.2"
+__revision__ = "$Id: obexftp,v 1.13 2004/07/27 15:39:54 phd Exp $"
+__date__ = "$Date: 2004/07/27 15:39:54 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
