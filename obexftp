@@ -13,33 +13,38 @@ and ObexFTP 0.10.4+ (http://triq.net/obexftp).
 
 Edit the full path to the obexftp binary (see below). Put the file to the
 /usr/[local/]lib/mc/extfs, and add a line "obexftp" to the
-/usr/[local/]lib/mc/extfs/extfs.ini. Then create somewhere a file called
-"irda", "bluetooth" or "tty" to connect to the device using IrDA, Bluetooth or
-TTY transport.
+/usr/[local/]lib/mc/extfs/extfs.ini. Then create somewhere a transport file.
 
-For the "bluetooth" put there a line "CP:AD:RE:SS channel", where CP:AD:RE:SS
-is the hardware address of the device you want to connect to, and channel is
-the OBEX File Transfer channel; you can discover the address and the channel
-for your device by using commands like "hcitool scan" and "sdptool browse".
-Other lines in the file are ignored.
+The transport file can have any name, and is expected to be a text file with at
+least one line defining the transport to your device. Other lines in the file
+are ignored.
 
-Put a device name like /dev/rfcomm0 into the "tty" file.
+First word in the line is a transport name - Bluetooth, IrDA or TTY. The name
+is case-insensitive.
 
-The content for the "irda" file is ignored.
+For the Bluetooth transport put there a line "Bluetooth CP:AD:RE:SS channel",
+where CP:AD:RE:SS is the hardware address of the device you want to connect to,
+and channel is the OBEX File Transfer channel; you can discover the address and
+the channel for your device by using commands like "hcitool scan" and "sdptool
+browse".
+
+For the TTY put a device name: "tty /dev/rfcomm0".
+
+The content with the IrDA just put "IrDA" in the file.
 
 Now run this "cd" command in the Midnight Commander (in the "bindings" files
-the command is "%cd"): cd bluetooth#obexftp. The VFS script use obexftp to try
-to connect to the device and list files and directories. Plese be warned that
+the command is "%cd"): cd description#obexftp. The VFS script uses obexftp to
+connect to the device and list files and directories. Plese be warned that
 opening the VFS for the first time is VERY slow, because the script needs to
 scan the entire cell phone's filesystem. And there must be a timeout between
 connections, which doesn't make the scanning process faster. Midnight Commander
-caches the result.
+caches the result, so you can browse directories quickly.
 
 """
 
-__version__ = "0.4.0"
-__revision__ = "$Id: obexftp,v 1.5 2004/06/13 21:31:52 phd Exp $"
-__date__ = "$Date: 2004/06/13 21:31:52 $"[7:-2]
+__version__ = "0.5.0"
+__revision__ = "$Id: obexftp,v 1.6 2004/06/13 21:48:59 phd Exp $"
+__date__ = "$Date: 2004/06/13 21:48:59 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
@@ -70,21 +75,18 @@ Put it in /usr/lib/mc/extfs.""")
 
 def setup_transport():
    """Setup transport parameters for the obexftp program"""
-   transport_filename = sys.argv[2]
-   base_filename = os.path.basename(transport_filename)
+   transport_file = open(sys.argv[2], 'r')
+   line = transport_file.readline().strip()
+   transport_file.close()
 
-   if base_filename == "bluetooth":
-      transport_file = open(transport_filename, 'r')
-      line = transport_file.readline().strip()
-      transport_file.close()
-      bdaddr, channel = line.split()
-      return ' '.join(["-b", bdaddr, "-B", channel])
-   elif base_filename == "tty":
-      transport_file = open(transport_filename, 'r')
-      device = transport_file.readline().strip()
-      transport_file.close()
-      return ' '.join(["-t", device])
-   elif base_filename == "irda":
+   parts = line.split()
+   transport = parts[0].lower()
+
+   if transport == "bluetooth":
+      return ' '.join(["-b", parts[1], "-B", parts[2]])
+   elif transport == "tty":
+      return ' '.join(["-t", parts[1]])
+   elif transport == "irda":
       return "-i"
    else:
       error("Unknown transport '%s'; expected 'bluetooth', 'tty' or 'irda'" % base_filename)
@@ -146,22 +148,10 @@ def recursive_list(obexftp_args, directory):
    listing = pipe.read()
    pipe.close()
 
-   debug = open("debug", 'a')
    if not listing:
-      debug.write("Cannot list '%s'\n" % directory)
-      debug.close()
       return
 
-   debug.write("Got listing of '%s'\n" % directory)
-
-   try:
-      dom = xml.dom.minidom.parseString(listing)
-   except:
-      obex_xml = open("obex.xml", 'a')
-      obex_xml.write(listing)
-      obex_xml.close()
-      raise
-
+   dom = xml.dom.minidom.parseString(listing)
    directories = get_entries(dom, "folder")
    files = get_entries(dom, "file")
 
@@ -169,7 +159,6 @@ def recursive_list(obexftp_args, directory):
       fullpath = "%s/%s" % (directory, entry.name)
       if fullpath.startswith('//'): fullpath = fullpath[1:]
       print entry.perm, "1 user group", entry.size, entry.mtime, fullpath
-   debug.close()
 
    for entry in directories:
       fullpath = "%s/%s" % (directory, entry.name)
@@ -258,11 +247,4 @@ procname = "mcobex_" + command
 if not g.has_key(procname):
    error("Unknown command %s" % command)
 
-try:
-   g[procname]()
-except:
-   import traceback
-   error = open("error", 'a')
-   traceback.print_exc(file=error)
-   error.close()
-   sys.exit(1)
+g[procname]()
