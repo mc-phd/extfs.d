@@ -37,9 +37,9 @@ and channel is the OBEX File Transfer channel; you can discover the address and
 the channel for your device by using commands like "hcitool scan" and "sdptool
 browse".
 
-For the IrDA: just put "IrDA" in the file.
-
 For the TTY put a device name: "tty /dev/rfcomm0".
+
+For the IrDA: just put "IrDA" in the file.
 
 Now run this "cd" command in the Midnight Commander (in the "bindings" files
 the command is "%cd"): cd description#obexftp, where "description" is the name
@@ -53,8 +53,8 @@ directories quickly.
 """
 
 __version__ = "1.0.0"
-__revision__ = "$Id: obexftp,v 1.9 2004/06/19 17:28:44 phd Exp $"
-__date__ = "$Date: 2004/06/19 17:28:44 $"[7:-2]
+__revision__ = "$Id: obexftp,v 1.10 2004/06/19 17:32:52 phd Exp $"
+__date__ = "$Date: 2004/06/19 17:32:52 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
