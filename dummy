@@ -9,9 +9,9 @@ License: GPL.
 
 """
 
-__version__ = "0.0.1"
-__revision__ = "$Id: dummy,v 1.1 2004/06/12 22:14:57 phd Exp $"
-__date__ = "$Date: 2004/06/12 22:14:57 $"[7:-2]
+__version__ = "0.1.0"
+__revision__ = "$Id: dummy,v 1.2 2004/06/12 22:42:29 phd Exp $"
+__date__ = "$Date: 2004/06/12 22:42:29 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
@@ -26,7 +26,25 @@ def error(msg):
 
 
 if len(sys.argv) < 2:
-   error("Not enough arguments")
+   error("""\
+It is not a program - it is a dummy VFS for Midnight Commander.
+Put it in /usr/lib/mc/extfs.""")
 
 
-cmd = sys.argv[1]
+def mcdummy_list():
+   """List the entire VFS"""
+   # Ignore the VFS name (sys.argv[2])
+   # Emit a dummy listing
+   print "-r--r--r-- 1 user group 0 Jun 13 02:20 file0"
+   print "-r--r--r-- 1 user group 1 Jun 13 02:21 file1"
+   print "-r--r--r-- 1 user group 2 Jun 13 02:22 file2"
+
+
+command = sys.argv[1]
+g = globals()
+procname = "mcdummy_" + command
+
+if not g.has_key(procname):
+   error("Unknown command %s" % command)
+
+g[procname]()
