@@ -67,8 +67,8 @@ is named in $TMP environment variable.
 """
 
 __version__ = "1.2.1"
-__revision__ = "$Id: obexftp,v 1.18 2004/10/03 13:33:03 phd Exp $"
-__date__ = "$Date: 2004/10/03 13:33:03 $"[7:-2]
+__revision__ = "$Id: obexftp,v 1.19 2004/10/03 15:02:45 phd Exp $"
+__date__ = "$Date: 2004/10/03 15:02:45 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
@@ -91,7 +91,7 @@ logger.setLevel(logging.ERROR)
 
 
 if len(sys.argv) < 3:
-   logger.error("""\
+   logger.critical("""\
 ObexFTP Virtual FileSystem for Midnight Commander version %s
 Author: %s
 %s
@@ -119,7 +119,7 @@ for tempdir in tempdirlist:
       break
 
 if not found:
-   logger.error("Cannot initialize error log file in directories %s" % str(tempdirlist))
+   logger.critical("Cannot initialize error log file in directories %s" % str(tempdirlist))
    sys.exit(1)
 
 logger.removeHandler(log_err_handler)
@@ -312,7 +312,7 @@ mcobex_rmdir = mcobex_rm
 
 
 def transport_error(error_str):
-   logger.error("Error parsing the transport file: %s" % error_str)
+   logger.critical("Error parsing the transport file: %s" % error_str)
    sys.exit(1)
 
 def setup_transport():
@@ -344,7 +344,7 @@ def setup_transport():
          transport_error("too many arguments for 'irda' transport")
       return "-i"
    else:
-      logger.error("Unknown transport '%s'; expected 'bluetooth', 'tty' or 'irda'", transport)
+      logger.critical("Unknown transport '%s'; expected 'bluetooth', 'tty' or 'irda'", transport)
       sys.exit(1)
 
 
@@ -353,7 +353,7 @@ procname = "mcobex_" + command
 
 g = globals()
 if not g.has_key(procname):
-   logger.error("Unknown command %s", command)
+   logger.critical("Unknown command %s", command)
    sys.exit(1)
 
 
