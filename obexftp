@@ -59,17 +59,23 @@ transport#obexftp command. Sometimes even this doesn't help - Midnight
 Commander shows the same cached VFS image. Exit Midnight Commander and
 restart it.
 
+If something goes wrong you can help by turning log_level to INFO (see below)
+or DEBUG and looking in the obexftp-mcextfs.log file.
+
 """
 
-__version__ = "1.0.2"
-__revision__ = "$Id: obexftp,v 1.13 2004/07/27 15:39:54 phd Exp $"
-__date__ = "$Date: 2004/07/27 15:39:54 $"[7:-2]
+__version__ = "1.1.0"
+__revision__ = "$Id: obexftp,v 1.14 2004/07/27 16:23:18 phd Exp $"
+__date__ = "$Date: 2004/07/27 16:23:18 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
 
 # Change this to suite your needs
 obexftp_prog = "/usr/local/obex/bin/obexftp"
+
+import logging
+log_level = logging.DEBUG
 
 
 import sys, time
@@ -78,47 +84,26 @@ import xml.dom.minidom
 from tempfile import mkdtemp
 
 
-def log_error(msg):
-   sys.stderr.write(msg + '\n')
-
-def error(msg):
-   log_error(msg)
-   sys.exit(1)
+logger = logging.getLogger('obexftp-mcextfs')
+logger.addHandler(logging.FileHandler('obexftp-mcextfs.log'))
+logger.setLevel(log_level)
 
 
 if len(sys.argv) < 2:
-   error("""\
+   logger.error("""\
 ObexFTP Virtual FileSystem for Midnight Commander version %s
 Author: %s
 %s
-Put it in /usr/lib/mc/extfs. For more information read the source!""" % (
+Put it in /usr/lib/mc/extfs. For more information read the source!""",
    __version__, __author__, __copyright__
-))
-
-
-def setup_transport():
-   """Setup transport parameters for the obexftp program"""
-   transport_file = open(sys.argv[2], 'r')
-   line = transport_file.readline()
-   transport_file.close()
-
-   parts = line.strip().split()
-   transport = parts[0].lower()
-
-   if transport == "bluetooth":
-      return ' '.join(["-b", parts[1], "-B", parts[2]])
-   elif transport == "tty":
-      return ' '.join(["-t", parts[1]])
-   elif transport == "irda":
-      return "-i"
-   else:
-      error("Unknown transport '%s'; expected 'bluetooth', 'tty' or 'irda'" % transport)
+)
+   sys.exit(1)
 
 
 # Parse ObexFTP XML directory listings
 
 class DirectoryEntry(object):
-   """Represent remote files and directories"""
+   """Represent a remote file or a directory"""
 
    def __init__(self, type):
       self.type = type
@@ -167,7 +152,7 @@ def get_entries(dom, type):
    return entries
 
 
-def recursive_list(obexftp_args, directory):
+def recursive_list(directory='/'):
    """List the directory recursively"""
    pipe = os.popen("%s %s -l '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, directory), 'r')
    listing = pipe.read()
@@ -189,16 +174,14 @@ def recursive_list(obexftp_args, directory):
       fullpath = "%s/%s" % (directory, entry.name)
       if fullpath.startswith('//'): fullpath = fullpath[1:]
       time.sleep(1)
-      recursive_list(obexftp_args, fullpath)
+      recursive_list(fullpath)
 
 def mcobex_list():
    """List the entire VFS"""
-   obexftp_args = setup_transport()
-   recursive_list(obexftp_args, '/')
+   recursive_list()
 
 
 # A unique directory for temporary files
-
 tmpdir_name = None
 
 def setup_tmpdir():
@@ -213,45 +196,45 @@ def cleanup_tmpdir():
 
 def mcobex_copyout():
    """Get a file from the VFS"""
-   obexftp_args = setup_transport()
    obex_filename = sys.argv[3]
    real_filename = sys.argv[4]
 
    setup_tmpdir()
-   os.system("%s %s -g '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, obex_filename))
    try:
-      os.rename(os.path.basename(obex_filename), real_filename)
-   except OSError:
-      pass
-   cleanup_tmpdir()
+      os.system("%s %s -g '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, obex_filename))
+      try:
+         os.rename(os.path.basename(obex_filename), real_filename)
+      except OSError:
+         pass
+   finally:
+      cleanup_tmpdir()
 
 
 def mcobex_copyin():
    """Put a file to the VFS"""
-   obexftp_args = setup_transport()
    obex_filename = sys.argv[3]
    real_filename = sys.argv[4]
    dirname, filename = os.path.split(obex_filename)
 
    setup_tmpdir()
-   os.rename(real_filename, filename)
-   os.system("%s %s -c '%s' -p '%s' 2>/dev/null" % (obexftp_prog, obexftp_args,
-      dirname, filename
-   ))
-   os.rename(filename, real_filename) # by some reason MC wants the file back
-   cleanup_tmpdir()
+   try:
+      os.rename(real_filename, filename)
+      os.system("%s %s -c '%s' -p '%s' 2>/dev/null" % (obexftp_prog, obexftp_args,
+         dirname, filename
+      ))
+      os.rename(filename, real_filename) # by some reason MC wants the file back
+   finally:
+      cleanup_tmpdir()
 
 
 def mcobex_rm():
    """Remove a file from the VFS"""
-   obexftp_args = setup_transport()
    obex_filename = sys.argv[3]
    os.system("%s %s -k '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, obex_filename))
 
 
 def mcobex_mkdir():
    """Create a directory in the VFS"""
-   obexftp_args = setup_transport()
    obex_dirname = sys.argv[3]
    os.system("%s %s -C '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, obex_dirname))
 
@@ -264,6 +247,36 @@ command = sys.argv[1]
 procname = "mcobex_" + command
 
 if not g.has_key(procname):
-   error("Unknown command %s" % command)
+   logger.error("Unknown command %s", command)
+   sys.exit(1)
 
-g[procname]()
+
+def setup_transport():
+   """Setup transport parameters for the obexftp program"""
+   transport_file = open(sys.argv[2], 'r')
+   line = transport_file.readline()
+   transport_file.close()
+
+   parts = line.strip().split()
+   transport = parts[0].lower()
+
+   if transport == "bluetooth":
+      return ' '.join(["-b", parts[1], "-B", parts[2]])
+   elif transport == "tty":
+      return ' '.join(["-t", parts[1]])
+   elif transport == "irda":
+      return "-i"
+   else:
+      logger.error("Unknown transport '%s'; expected 'bluetooth', 'tty' or 'irda'", transport)
+      sys.exit(1)
+
+try:
+   obexftp_args = setup_transport()
+except:
+   logger.exception("Exception while parsing the transport file")
+   sys.exit(1)
+
+try:
+   g[procname]()
+except:
+   logger.exception("Exception during run")
