@@ -10,8 +10,8 @@ License: GPL.
 """
 
 __version__ = "1.0.1"
-__revision__ = "$Id: dummy,v 1.8 2004/06/13 20:45:17 phd Exp $"
-__date__ = "$Date: 2004/06/13 20:45:17 $"[7:-2]
+__revision__ = "$Id: dummy,v 1.9 2004/06/13 20:49:36 phd Exp $"
+__date__ = "$Date: 2004/06/13 20:49:36 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
@@ -50,8 +50,8 @@ def mcdummy_copyout():
    real_filename = sys.argv[4]
 
    real_file = open(real_filename, 'a')
-   real_file.write("Copied from %s\n" % dummy_filename)
-   real_file.write("Copied  to  %s\n" % real_filename)
+   real_file.write("Copy from %s\n" % dummy_filename)
+   real_file.write("Copy  to  %s\n" % real_filename)
    real_file.close()
 
 
@@ -62,8 +62,8 @@ def mcdummy_copyin():
    real_filename = sys.argv[4]
 
    real_file = open(real_filename + "-dummy.tmp", 'a')
-   real_file.write("Copied from %s\n" % real_filename)
-   real_file.write("Copied  to  %s\n" % dummy_filename)
+   real_file.write("Copy from %s\n" % real_filename)
+   real_file.write("Copy  to  %s\n" % dummy_filename)
    real_file.close()
 
 
