@@ -6,9 +6,9 @@ WHAT IS IT
 binary.
 
 
-WHAT'S NEW in version 1.1.0.
+WHAT'S NEW in version 1.1.0 (2004-07-27)
    Added more inline documentations. Added logging; this raises requirement to
-Python 2.3+. Catching more errors and exceptions.
+Python 2.3+. Catch more errors and exceptions.
 
 
 WHERE TO GET
