@@ -37,9 +37,9 @@ make the scanning process faster. Midnight Commander caches the result.
 
 """
 
-__version__ = "0.2.0"
-__revision__ = "$Id: obexftp,v 1.3 2004/06/13 19:41:52 phd Exp $"
-__date__ = "$Date: 2004/06/13 19:41:52 $"[7:-2]
+__version__ = "0.3.0"
+__revision__ = "$Id: obexftp,v 1.4 2004/06/13 19:47:25 phd Exp $"
+__date__ = "$Date: 2004/06/13 19:47:25 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
@@ -220,11 +220,14 @@ def mcobex_copyin():
    obexftp_args = setup_transport()
    dummy_filename = sys.argv[3]
    real_filename = sys.argv[4]
+   dirname, filname = os.path.split(dummy_filename)
 
-   real_file = open(real_filename + "-dummy.tmp", 'w')
-   real_file.write("Copied from %s\n" % real_filename)
-   real_file.write("Copied  to  %s\n" % dummy_filename)
-   real_file.close()
+   setup_tmpdir()
+   os.rename(real_filename, )
+   os.system("%s %s -c '%s' -p '%s' 2>/dev/null" % (obexftp_prog, obexftp_args,
+      dirname, filename
+   ))
+   cleanup_tmpdir()
 
 
 def mcobex_rm():
