@@ -52,9 +52,9 @@ directories quickly.
 
 """
 
-__version__ = "1.0.0"
-__revision__ = "$Id: obexftp,v 1.11 2004/06/19 17:34:24 phd Exp $"
-__date__ = "$Date: 2004/06/19 17:34:24 $"[7:-2]
+__version__ = "1.0.1"
+__revision__ = "$Id: obexftp,v 1.12 2004/06/23 16:05:34 phd Exp $"
+__date__ = "$Date: 2004/06/23 16:05:34 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
@@ -90,10 +90,10 @@ Put it in /usr/lib/mc/extfs. For more information read the source!""" % (
 def setup_transport():
    """Setup transport parameters for the obexftp program"""
    transport_file = open(sys.argv[2], 'r')
-   line = transport_file.readline().strip()
+   line = transport_file.readline()
    transport_file.close()
 
-   parts = line.split()
+   parts = line.strip().split()
    transport = parts[0].lower()
 
    if transport == "bluetooth":
@@ -103,7 +103,7 @@ def setup_transport():
    elif transport == "irda":
       return "-i"
    else:
-      error("Unknown transport '%s'; expected 'bluetooth', 'tty' or 'irda'" % base_filename)
+      error("Unknown transport '%s'; expected 'bluetooth', 'tty' or 'irda'" % transport)
 
 
 # Parse ObexFTP XML directory listings
