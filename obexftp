@@ -7,10 +7,12 @@ Author: Oleg BroytMann <phd@phd.pp.ru>.
 Copyright (C) 2004 PhiloSoft Design.
 License: GPL.
 
-To use it install OpenOBEX (http://openobex.sourceforge.net/) and ObexFTP
-(http://triq.net/obexftp) and edit the full path to the obexftp binary.
+The script requires Midnight Commander 3.1+ (http://www.ibiblio.org/mc/),
+Python 2.2+ (http://www.python.org/), OpenOBEX 1.0.1+ (http://openobex.sourceforge.net/)
+and ObexFTP 0.10.4+ (http://triq.net/obexftp).
 
-Put the file to the /usr/[local/]lib/mc/extfs, and add a line "obexftp" to the
+Edit the full path to the obexftp binary (see below). Put the file to the
+/usr/[local/]lib/mc/extfs, and add a line "obexftp" to the
 /usr/[local/]lib/mc/extfs/extfs.ini. Then create somewhere a file called
 "irda", "bluetooth" or "tty" to connect to the device using IrDA, Bluetooth or
 TTY transport.
@@ -27,21 +29,26 @@ The content for the "irda" file is ignored.
 
 Now run this "cd" command in the Midnight Commander (in the "bindings" files
 the command is "%cd"): cd bluetooth#obexftp. The VFS script use obexftp to try
-to connect to the device and list files and directories. It could be very slow...
+to connect to the device and list files and directories. Plese be warned that
+opening the VFS for the first time is VERY slow, because the script needs to
+scan the entire cell phone's filesystem. Often obexftp fails to list a
+directory, and the script retries after a second or two timeouts, which don't
+make the scanning process faster. Midnight Commander caches the result.
 
 """
 
 __version__ = "0.1.0"
-__revision__ = "$Id: obexftp,v 1.1 2004/06/13 13:27:47 phd Exp $"
-__date__ = "$Date: 2004/06/13 13:27:47 $"[7:-2]
+__revision__ = "$Id: obexftp,v 1.2 2004/06/13 18:49:25 phd Exp $"
+__date__ = "$Date: 2004/06/13 18:49:25 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
 
+# Change this to suite your needs
 obexftp_prog = "/usr/local/obex/bin/obexftp"
 
 
-import sys, os
+import sys, os, time
 import xml.dom.minidom
 
 def log_error(msg):
@@ -75,7 +82,7 @@ def setup_transport():
       transport_file.close()
       return ' '.join(["-t", device])
    elif base_filename == "irda":
-      return ' '.join(["-i"])
+      return "-i"
    else:
       error("Unknown transport '%s'; expected 'bluetooth', 'tty' or 'irda'" % base_filename)
 
@@ -132,12 +139,24 @@ def get_entries(dom, tag):
 
 def _recursive_list(obexftp_args, directory):
    """List the directory recursively"""
-   pipe = os.popen("%s %s -l '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, directory), 'r')
-   listing = pipe.read()
-   pipe.close()
+   debug = open("debug", 'a')
+   for i in range(3):
+      time.sleep(2*i)
+      pipe = os.popen("%s %s -l '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, directory), 'r')
+      listing = pipe.read()
+      pipe.close()
+
+      if listing:
+         break
+
+      debug.write("Cannot list '%s', retrying...\n" % directory)
 
    if not listing:
+      debug.write("Cannot list '%s'\n" % directory)
+      debug.close()
       return
+
+   debug.write("Got listing of '%s'\n" % directory)
 
    try:
       dom = xml.dom.minidom.parseString(listing)
@@ -150,15 +169,16 @@ def _recursive_list(obexftp_args, directory):
    directories = get_entries(dom, "folder")
    files = get_entries(dom, "file")
 
-   prefix = directory[1:] # omit leading slash
-   debug = open("debug", 'a')
    for entry in directories + files:
-      print >>debug, entry.perm, "1 user group", entry.size, entry.mtime, "%s/%s" % (prefix, entry.name)
-      print entry.perm, "1 user group", entry.size, entry.mtime, "%s/%s" % (prefix, entry.name)
+      fullpath = "%s/%s" % (directory, entry.name)
+      if fullpath.startswith('//'): fullpath = fullpath[1:]
+      print entry.perm, "1 user group", entry.size, entry.mtime, fullpath
    debug.close()
 
    for entry in directories:
-      _recursive_list(obexftp_args, "%s/%s" % (directory, entry.name))
+      fullpath = "%s/%s" % (directory, entry.name)
+      if fullpath.startswith('//'): fullpath = fullpath[1:]
+      _recursive_list(obexftp_args, fullpath)
 
 def mcobex_list():
    """List the entire VFS"""
