@@ -1,0 +1,32 @@
+#! /usr/local/bin/python -O
+
+"""
+Dummy VFS for Midnight Commander. Just for a test.
+
+Author: Oleg BroytMann <phd@phd.pp.ru>.
+Copyright (C) 2004 PhiloSoft Design.
+License: GPL.
+
+"""
+
+__version__ = "0.0.1"
+__revision__ = "$Id: dummy,v 1.1 2004/06/12 22:14:57 phd Exp $"
+__date__ = "$Date: 2004/06/12 22:14:57 $"[7:-2]
+__author__ = "Oleg Broytmann <phd@phd.pp.ru>"
+__copyright__ = "Copyright (C) 2004 PhiloSoft Design"
+
+import sys
+
+def log_error(msg):
+   sys.stderr.write(msg + '\n')
+
+def error(msg):
+   sys.stderr.write(msg + '\n')
+   sys.exit(1)
+
+
+if len(sys.argv) < 2:
+   error("Not enough arguments")
+
+
+cmd = sys.argv[1]
