@@ -8,7 +8,7 @@ Copyright (C) 2004 PhiloSoft Design.
 License: GPL.
 
 Manipulate a cell phone's filesystem calling obexftp binary. This is a complete
-user-mode solution, no kernel modules required (unlike SiemensFS or such). The
+user-mode solution, no kernel modules required (unlike SieFS or such). The
 script implements all commands of Midnight VFS, except for undocumented "run";
 but there are no runnable files in the cell phone. The script is written in
 Python because I love Python, the best of all languages, and I need to parse
@@ -37,23 +37,24 @@ and channel is the OBEX File Transfer channel; you can discover the address and
 the channel for your device by using commands like "hcitool scan" and "sdptool
 browse".
 
-The content with the IrDA just put "IrDA" in the file.
+For the IrDA: just put "IrDA" in the file.
 
 For the TTY put a device name: "tty /dev/rfcomm0".
 
 Now run this "cd" command in the Midnight Commander (in the "bindings" files
-the command is "%cd"): cd description#obexftp. The VFS script uses obexftp to
-connect to the device and list files and directories. Please be warned that
-opening the VFS for the first time is VERY slow, because the script needs to
-scan the entire cell phone's filesystem. And there must be a timeout between
-connections, which doesn't make the scanning process faster. Midnight Commander
-caches the result, so you can browse directories quickly.
+the command is "%cd"): cd description#obexftp, where "description" is the name
+of your file. The VFS script uses obexftp to connect to the device and list
+files and directories. Please be warned that opening the VFS for the first time
+is VERY slow, because the script needs to scan the entire cell phone's
+filesystem. And there must be timeouts between connections, which don't make
+the scanning faster. Midnight Commander caches the result, so you can browse
+directories quickly.
 
 """
 
-__version__ = "0.5.2"
-__revision__ = "$Id: obexftp,v 1.8 2004/06/16 16:17:43 phd Exp $"
-__date__ = "$Date: 2004/06/16 16:17:43 $"[7:-2]
+__version__ = "1.0.0"
+__revision__ = "$Id: obexftp,v 1.9 2004/06/19 17:28:44 phd Exp $"
+__date__ = "$Date: 2004/06/19 17:28:44 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
