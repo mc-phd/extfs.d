@@ -31,15 +31,15 @@ Now run this "cd" command in the Midnight Commander (in the "bindings" files
 the command is "%cd"): cd bluetooth#obexftp. The VFS script use obexftp to try
 to connect to the device and list files and directories. Plese be warned that
 opening the VFS for the first time is VERY slow, because the script needs to
-scan the entire cell phone's filesystem. Often obexftp fails to list a
-directory, and the script retries after a second or two timeouts, which don't
-make the scanning process faster. Midnight Commander caches the result.
+scan the entire cell phone's filesystem. And there must be a timeout between
+connections, which doesn't make the scanning process faster. Midnight Commander
+caches the result.
 
 """
 
-__version__ = "0.3.0"
-__revision__ = "$Id: obexftp,v 1.4 2004/06/13 19:47:25 phd Exp $"
-__date__ = "$Date: 2004/06/13 19:47:25 $"[7:-2]
+__version__ = "0.4.0"
+__revision__ = "$Id: obexftp,v 1.5 2004/06/13 21:31:52 phd Exp $"
+__date__ = "$Date: 2004/06/13 21:31:52 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
@@ -99,7 +99,7 @@ class DirectoryEntry(object):
       if type == "file":
          self.perm = "-rw-rw-rw-"
       elif type == "folder":
-         self.perm = "drw-rw-rw-"
+         self.perm = "drwxrwxrwx"
       else:
          raise ValueError, "unknown type '%s'; expected 'file' or 'folder'" % self.type
 
@@ -142,18 +142,11 @@ def get_entries(dom, tag):
 
 def recursive_list(obexftp_args, directory):
    """List the directory recursively"""
+   pipe = os.popen("%s %s -l '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, directory), 'r')
+   listing = pipe.read()
+   pipe.close()
+
    debug = open("debug", 'a')
-   for i in range(3):
-      time.sleep(2*i)
-      pipe = os.popen("%s %s -l '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, directory), 'r')
-      listing = pipe.read()
-      pipe.close()
-
-      if listing:
-         break
-
-      debug.write("Cannot list '%s', retrying...\n" % directory)
-
    if not listing:
       debug.write("Cannot list '%s'\n" % directory)
       debug.close()
@@ -181,6 +174,7 @@ def recursive_list(obexftp_args, directory):
    for entry in directories:
       fullpath = "%s/%s" % (directory, entry.name)
       if fullpath.startswith('//'): fullpath = fullpath[1:]
+      time.sleep(1)
       recursive_list(obexftp_args, fullpath)
 
 def mcobex_list():
@@ -206,58 +200,55 @@ def cleanup_tmpdir():
 def mcobex_copyout():
    """Get a file from the VFS"""
    obexftp_args = setup_transport()
-   dummy_filename = sys.argv[3]
+   obex_filename = sys.argv[3]
    real_filename = sys.argv[4]
 
    setup_tmpdir()
-   os.system("%s %s -g '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, dummy_filename))
-   os.rename(os.path.basename(dummy_filename), real_filename)
+   os.system("%s %s -g '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, obex_filename))
+   try:
+      os.rename(os.path.basename(obex_filename), real_filename)
+   except OSError:
+      pass
    cleanup_tmpdir()
 
 
 def mcobex_copyin():
    """Put a file to the VFS"""
    obexftp_args = setup_transport()
-   dummy_filename = sys.argv[3]
+   obex_filename = sys.argv[3]
    real_filename = sys.argv[4]
-   dirname, filname = os.path.split(dummy_filename)
+   dirname, filename = os.path.split(obex_filename)
 
    setup_tmpdir()
-   os.rename(real_filename, )
+   os.rename(real_filename, filename)
    os.system("%s %s -c '%s' -p '%s' 2>/dev/null" % (obexftp_prog, obexftp_args,
       dirname, filename
    ))
+   os.rename(filename, real_filename) # by some reason MC wants the file back
    cleanup_tmpdir()
 
 
 def mcobex_rm():
    """Remove a file from the VFS"""
    obexftp_args = setup_transport()
-   dummy_filename = sys.argv[3]
+   obex_filename = sys.argv[3]
 
-   real_file = open(".dummy.tmp", 'a')
-   real_file.write("Remove %s\n" % dummy_filename)
-   real_file.close()
+   setup_tmpdir()
+   os.system("%s %s -k '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, obex_filename))
+   cleanup_tmpdir()
 
 
 def mcobex_mkdir():
    """Create a directory in the VFS"""
    obexftp_args = setup_transport()
-   dummy_dirname = sys.argv[3]
+   obex_dirname = sys.argv[3]
 
-   real_file = open(".dummy.tmp", 'a')
-   real_file.write("Create %s\n" % dummy_dirname)
-   real_file.close()
+   setup_tmpdir()
+   os.system("%s %s -C '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, obex_dirname))
+   cleanup_tmpdir()
 
 
-def mcobex_rmdir():
-   """Remove a directory from the VFS"""
-   obexftp_args = setup_transport()
-   dummy_dirname = sys.argv[3]
-
-   real_file = open(".dummy.tmp", 'a')
-   real_file.write("Remove %s\n" % dummy_dirname)
-   real_file.close()
+mcobex_rmdir = mcobex_rm
 
 
 g = globals()
