@@ -59,23 +59,20 @@ transport#obexftp command. Sometimes even this doesn't help - Midnight
 Commander shows the same cached VFS image. Exit Midnight Commander and
 restart it.
 
-If something goes wrong you can help by turning log_level to INFO (see below)
-or DEBUG and looking in the obexftp-mcextfs.log file.
+If something goes wrong set the logging level (see setLevel() below) to INFO
+or DEBUG and look in the obexftp-mcextfs.log file(s).
 
 """
 
 __version__ = "1.1.0"
-__revision__ = "$Id: obexftp,v 1.15 2004/07/27 16:35:28 phd Exp $"
-__date__ = "$Date: 2004/07/27 16:35:28 $"[7:-2]
+__revision__ = "$Id: obexftp,v 1.16 2004/07/27 17:55:15 phd Exp $"
+__date__ = "$Date: 2004/07/27 17:55:15 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
 
 # Change this to suite your needs
 obexftp_prog = "/usr/local/obex/bin/obexftp"
-
-import logging
-log_level = logging.DEBUG
 
 
 import sys, time
@@ -84,9 +81,10 @@ import xml.dom.minidom
 from tempfile import mkdtemp
 
 
+import logging
 logger = logging.getLogger('obexftp-mcextfs')
 logger.addHandler(logging.FileHandler('obexftp-mcextfs.log'))
-logger.setLevel(log_level)
+logger.setLevel(logging.ERROR)
 
 
 if len(sys.argv) < 2:
@@ -152,13 +150,27 @@ def get_entries(dom, type):
    return entries
 
 
+def _run(*args):
+   """Run the obexftp binary catching errors"""
+   command = "%s %s %s" % (obexftp_prog, obexftp_args, ' '.join(args))
+   logger.debug("Running command %s", command)
+   w, r, e = os.popen3(command, 'r')
+   w.close()
+   errors = e.read()
+   e.close()
+   result = r.read()
+   r.close()
+   logger.debug("    errors: %s", errors)
+   logger.debug("    result: %s", result)
+   return result, errors
+
+
 def recursive_list(directory='/'):
    """List the directory recursively"""
-   pipe = os.popen("%s %s -l '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, directory), 'r')
-   listing = pipe.read()
-   pipe.close()
+   listing, errors = _run("-l '%s'" % directory)
 
    if not listing:
+      logger.error("Error reading XML listing: %s", errors)
       return
 
    dom = xml.dom.minidom.parseString(listing)
@@ -201,11 +213,11 @@ def mcobex_copyout():
 
    setup_tmpdir()
    try:
-      os.system("%s %s -g '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, obex_filename))
+      _run("-g '%s'" % obex_filename)
       try:
          os.rename(os.path.basename(obex_filename), real_filename)
       except OSError:
-         pass
+         logger.exception("CopyOut %s to %s", obex_filename, real_filename)
    finally:
       cleanup_tmpdir()
 
@@ -218,11 +230,12 @@ def mcobex_copyin():
 
    setup_tmpdir()
    try:
-      os.rename(real_filename, filename)
-      os.system("%s %s -c '%s' -p '%s' 2>/dev/null" % (obexftp_prog, obexftp_args,
-         dirname, filename
-      ))
-      os.rename(filename, real_filename) # by some reason MC wants the file back
+      try:
+         os.rename(real_filename, filename)
+         _run("-c '%s' -p '%s'" % (dirname, filename))
+         os.rename(filename, real_filename) # by some reason MC wants the file back
+      except OSError:
+         logger.exception("CopyIn %s to %s", real_filename, obex_filename)
    finally:
       cleanup_tmpdir()
 
@@ -230,13 +243,13 @@ def mcobex_copyin():
 def mcobex_rm():
    """Remove a file from the VFS"""
    obex_filename = sys.argv[3]
-   os.system("%s %s -k '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, obex_filename))
+   _run("-k '%s'" % obex_filename)
 
 
 def mcobex_mkdir():
    """Create a directory in the VFS"""
    obex_dirname = sys.argv[3]
-   os.system("%s %s -C '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, obex_dirname))
+   _run("-C '%s'" % obex_dirname)
 
 
 mcobex_rmdir = mcobex_rm
