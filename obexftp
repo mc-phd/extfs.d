@@ -1,0 +1,237 @@
+#! /usr/local/bin/python -O
+
+"""
+ObexFTP VFS for Midnight Commander. Manipulate a cell phone's filesystem using obexftp.
+
+Author: Oleg BroytMann <phd@phd.pp.ru>.
+Copyright (C) 2004 PhiloSoft Design.
+License: GPL.
+
+To use it install OpenOBEX (http://openobex.sourceforge.net/) and ObexFTP
+(http://triq.net/obexftp) and edit the full path to the obexftp binary.
+
+Put the file to the /usr/[local/]lib/mc/extfs, and add a line "obexftp" to the
+/usr/[local/]lib/mc/extfs/extfs.ini. Then create somewhere a file called
+"irda", "bluetooth" or "tty" to connect to the device using IrDA, Bluetooth or
+TTY transport.
+
+For the "bluetooth" put there a line "CP:AD:RE:SS channel", where CP:AD:RE:SS
+is the hardware address of the device you want to connect to, and channel is
+the OBEX File Transfer channel; you can discover the address and the channel
+for your device by using commands like "hcitool scan" and "sdptool browse".
+Other lines in the file are ignored.
+
+Put a device name like /dev/rfcomm0 into the "tty" file.
+
+The content for the "irda" file is ignored.
+
+Now run this "cd" command in the Midnight Commander (in the "bindings" files
+the command is "%cd"): cd bluetooth#obexftp. The VFS script use obexftp to try
+to connect to the device and list files and directories. It could be very slow...
+
+"""
+
+__version__ = "0.1.0"
+__revision__ = "$Id: obexftp,v 1.1 2004/06/13 13:27:47 phd Exp $"
+__date__ = "$Date: 2004/06/13 13:27:47 $"[7:-2]
+__author__ = "Oleg Broytmann <phd@phd.pp.ru>"
+__copyright__ = "Copyright (C) 2004 PhiloSoft Design"
+
+
+obexftp_prog = "/usr/local/obex/bin/obexftp"
+
+
+import sys, os
+import xml.dom.minidom
+
+def log_error(msg):
+   sys.stderr.write(msg + '\n')
+
+def error(msg):
+   log_error(msg + '\n')
+   sys.exit(1)
+
+
+if len(sys.argv) < 2:
+   error("""\
+It is not a program - it is a VFS for Midnight Commander.
+Put it in /usr/lib/mc/extfs.""")
+
+
+def setup_transport():
+   """Setup transport parameters for the obexftp program"""
+   transport_filename = sys.argv[2]
+   base_filename = os.path.basename(transport_filename)
+
+   if base_filename == "bluetooth":
+      transport_file = open(transport_filename, 'r')
+      line = transport_file.readline().strip()
+      transport_file.close()
+      bdaddr, channel = line.split()
+      return ' '.join(["-b", bdaddr, "-B", channel])
+   elif base_filename == "tty":
+      transport_file = open(transport_filename, 'r')
+      device = transport_file.readline().strip()
+      transport_file.close()
+      return ' '.join(["-t", device])
+   elif base_filename == "irda":
+      return ' '.join(["-i"])
+   else:
+      error("Unknown transport '%s'; expected 'bluetooth', 'tty' or 'irda'" % base_filename)
+
+
+# Parse ObexFTP XML directory listings
+
+class DirectoryEntry(object):
+   def __init__(self, type):
+      self.type = type
+      self.size = 0
+      if type == "file":
+         self.perm = "-rw-rw-rw-"
+      elif type == "folder":
+         self.perm = "drw-rw-rw-"
+      else:
+         raise ValueError, "unknown type '%s'; expected 'file' or 'folder'" % self.type
+
+   def mtime(self):
+      if not hasattr(self, "modified"): # telecom
+         return "01-01-70 0:0"
+      date, time = self.modified.split('T')
+      year, month, day = date[2:4], date[4:6], date[6:8]
+      hour, minute = time[:2], time[2:4]
+      return "%s-%s-%s %s:%s" % (month, day, year, hour, minute)
+   mtime = property(mtime)
+
+   def __repr__(self):
+      if self.type == "file":
+         return """<%s: type=file, name=%s, size=%s, mtime=%s at 0x%x>""" % (
+            self.__class__.__name__, self.name, self.size, self.mtime, id(self)
+         )
+      if self.type == "folder":
+         if hasattr(self, "modified"):
+            return """<%s: type=directory, name=%s, mtime=%s at 0x%x>""" % (
+               self.__class__.__name__, self.name, self.mtime, id(self)
+            )
+         else: # telecom
+            return """<%s: type=directory, name=%s at 0x%x>""" % (
+               self.__class__.__name__, self.name, id(self)
+            )
+      raise ValueError, "unknown type '%s'; expected 'file' or 'folder'" % self.type
+
+def get_entries(dom, tag):
+   entries = []
+   for subtag in dom.getElementsByTagName(tag):
+      entry = DirectoryEntry(tag)
+      attrs = subtag.attributes
+      for i in range(attrs.length):
+         attr = attrs.item(i)
+         setattr(entry, attr.name, attr.value)
+      entries.append(entry)
+   return entries
+
+
+def _recursive_list(obexftp_args, directory):
+   """List the directory recursively"""
+   pipe = os.popen("%s %s -l '%s' 2>/dev/null" % (obexftp_prog, obexftp_args, directory), 'r')
+   listing = pipe.read()
+   pipe.close()
+
+   if not listing:
+      return
+
+   try:
+      dom = xml.dom.minidom.parseString(listing)
+   except:
+      obex_xml = open("obex.xml", 'a')
+      obex_xml.write(listing)
+      obex_xml.close()
+      raise
+
+   directories = get_entries(dom, "folder")
+   files = get_entries(dom, "file")
+
+   prefix = directory[1:] # omit leading slash
+   debug = open("debug", 'a')
+   for entry in directories + files:
+      print >>debug, entry.perm, "1 user group", entry.size, entry.mtime, "%s/%s" % (prefix, entry.name)
+      print entry.perm, "1 user group", entry.size, entry.mtime, "%s/%s" % (prefix, entry.name)
+   debug.close()
+
+   for entry in directories:
+      _recursive_list(obexftp_args, "%s/%s" % (directory, entry.name))
+
+def mcobex_list():
+   """List the entire VFS"""
+   obexftp_args = setup_transport()
+   _recursive_list(obexftp_args, '/')
+
+
+def mcobex_copyout():
+   """Get a file from the VFS"""
+   obexftp_args = setup_transport()
+   dummy_filename = sys.argv[3]
+   real_filename = sys.argv[4]
+
+   real_file = open(real_filename, 'w')
+   real_file.write("Copied from %s\n" % dummy_filename)
+   real_file.write("Copied  to  %s\n" % real_filename)
+   real_file.close()
+
+
+def mcobex_copyin():
+   """Put a file to the VFS"""
+   obexftp_args = setup_transport()
+   dummy_filename = sys.argv[3]
+   real_filename = sys.argv[4]
+
+   real_file = open(real_filename + "-dummy.tmp", 'w')
+   real_file.write("Copied from %s\n" % real_filename)
+   real_file.write("Copied  to  %s\n" % dummy_filename)
+   real_file.close()
+
+
+def mcobex_rm():
+   """Remove a file from the VFS"""
+   obexftp_args = setup_transport()
+   dummy_filename = sys.argv[3]
+
+   real_file = open(".dummy.tmp", 'a')
+   real_file.write("Remove %s\n" % dummy_filename)
+   real_file.close()
+
+
+def mcobex_mkdir():
+   """Create a directory in the VFS"""
+   obexftp_args = setup_transport()
+   dummy_dirname = sys.argv[3]
+
+   real_file = open(".dummy.tmp", 'a')
+   real_file.write("Create %s\n" % dummy_dirname)
+   real_file.close()
+
+
+def mcobex_rmdir():
+   """Remove a directory from the VFS"""
+   obexftp_args = setup_transport()
+   dummy_dirname = sys.argv[3]
+
+   real_file = open(".dummy.tmp", 'a')
+   real_file.write("Remove %s\n" % dummy_dirname)
+   real_file.close()
+
+
+g = globals()
+command = sys.argv[1]
+procname = "mcobex_" + command
+
+if not g.has_key(procname):
+   error("Unknown command %s" % command)
+
+try:
+   g[procname]()
+except:
+   import traceback
+   error = open("error", 'a')
+   traceback.print_exc(file=error)
+   error.close()
+   sys.exit(1)
