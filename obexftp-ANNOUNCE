@@ -6,6 +6,12 @@ WHAT IS IT
 binary.
 
 
+WHAT'S NEW in version 1.2.1 (2004-10-03)
+   Put error logfile in the same directory as the transport file. If the
+directory or the file is not writeable - try to put the logfile in a temporary
+directory, usually /tmp.
+
+
 WHAT'S NEW in version 1.2.0 (2004-09-27)
    Fixed a major bug with blocked read from a pipe. Many thanks to
 Marius Konitzer <m.konitzer@gmx.de> for reporting the bug. Now I use files
