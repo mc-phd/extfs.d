@@ -1,23 +1,32 @@
 #! /usr/local/bin/python -O
 
 """
-ObexFTP VFS for Midnight Commander. Manipulate a cell phone's filesystem using obexftp.
+ObexFTP Virtual FileSystem for Midnight Commander.
 
 Author: Oleg BroytMann <phd@phd.pp.ru>.
 Copyright (C) 2004 PhiloSoft Design.
 License: GPL.
 
+Manipulate a cell phone's filesystem calling obexftp binary. This is a complete
+user-mode solution, no kernel modules required (unlike SiemensFS or such). The
+script implements all commands of Midnight VFS, except for undocumented "run";
+but there are no runnable files in the cell phone. The script is written in
+Python because I love Python, the best of all languages, and I need to parse
+XML directory listings from obexftp.
+
 The script requires Midnight Commander 3.1+ (http://www.ibiblio.org/mc/),
-Python 2.2+ (http://www.python.org/), OpenOBEX 1.0.1+ (http://openobex.sourceforge.net/)
+Python 2.2+ (http://www.python.org/),
+OpenOBEX 1.0.1+ (http://openobex.sourceforge.net/)
 and ObexFTP 0.10.4+ (http://triq.net/obexftp).
 
-Edit the full path to the obexftp binary (see below). Put the file to the
-/usr/[local/]lib/mc/extfs, and add a line "obexftp" to the
-/usr/[local/]lib/mc/extfs/extfs.ini. Then create somewhere a transport file.
+Edit the script, and correct the shebang path, if your python is not in the
+/usr/local. Edit the full path to the obexftp binary (see below). Put the file
+in the /usr/[local/]lib/mc/extfs, and add a line "obexftp" to the
+/usr/[local/]lib/mc/extfs/extfs.ini.
 
-The transport file can have any name, and is expected to be a text file with at
-least one line defining the transport to your device. Other lines in the file
-are ignored.
+Create somewhere a transport file. The transport file can have any name, and is
+expected to be a text file with at least one line defining the transport to
+your device. Other lines in the file are ignored.
 
 First word in the line is a transport name - Bluetooth, IrDA or TTY. The name
 is case-insensitive.
@@ -28,13 +37,13 @@ and channel is the OBEX File Transfer channel; you can discover the address and
 the channel for your device by using commands like "hcitool scan" and "sdptool
 browse".
 
-For the TTY put a device name: "tty /dev/rfcomm0".
-
 The content with the IrDA just put "IrDA" in the file.
+
+For the TTY put a device name: "tty /dev/rfcomm0".
 
 Now run this "cd" command in the Midnight Commander (in the "bindings" files
 the command is "%cd"): cd description#obexftp. The VFS script uses obexftp to
-connect to the device and list files and directories. Plese be warned that
+connect to the device and list files and directories. Please be warned that
 opening the VFS for the first time is VERY slow, because the script needs to
 scan the entire cell phone's filesystem. And there must be a timeout between
 connections, which doesn't make the scanning process faster. Midnight Commander
@@ -42,9 +51,9 @@ caches the result, so you can browse directories quickly.
 
 """
 
-__version__ = "0.5.1"
-__revision__ = "$Id: obexftp,v 1.7 2004/06/13 22:04:56 phd Exp $"
-__date__ = "$Date: 2004/06/13 22:04:56 $"[7:-2]
+__version__ = "0.5.2"
+__revision__ = "$Id: obexftp,v 1.8 2004/06/16 16:17:43 phd Exp $"
+__date__ = "$Date: 2004/06/16 16:17:43 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
@@ -69,8 +78,12 @@ def error(msg):
 
 if len(sys.argv) < 2:
    error("""\
-It is not a program - it is a VFS for Midnight Commander.
-Put it in /usr/lib/mc/extfs. For more information read the source!""")
+ObexFTP Virtual FileSystem for Midnight Commander version %s
+Author: %s
+%s
+Put it in /usr/lib/mc/extfs. For more information read the source!""" % (
+   __version__, __author__, __copyright__
+))
 
 
 def setup_transport():
