@@ -6,9 +6,11 @@ WHAT IS IT
 binary.
 
 
-WHAT'S NEW in version 1.1.0 (2004-07-27)
-   Added more inline documentations. Added logging; this raises requirement to
-Python 2.3+. Catch more errors and exceptions.
+WHAT'S NEW in version 1.2.0 (2004-09-27)
+   Fixed a major bug with blocked read from a pipe. Many thanks to
+Marius Konitzer <m.konitzer@gmx.de> for reporting the bug. Now I use files
+instead of pipes.
+   More test during parsing of a transport file.
 
 
 WHERE TO GET

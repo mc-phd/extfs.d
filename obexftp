@@ -64,9 +64,9 @@ or DEBUG and look in the obexftp-mcextfs.log file(s).
 
 """
 
-__version__ = "1.1.0"
-__revision__ = "$Id: obexftp,v 1.16 2004/07/27 17:55:15 phd Exp $"
-__date__ = "$Date: 2004/07/27 17:55:15 $"[7:-2]
+__version__ = "1.2.0"
+__revision__ = "$Id: obexftp,v 1.17 2004/09/25 16:13:39 phd Exp $"
+__date__ = "$Date: 2004/09/25 16:13:39 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
@@ -78,7 +78,7 @@ obexftp_prog = "/usr/local/obex/bin/obexftp"
 import sys, time
 import os, shutil
 import xml.dom.minidom
-from tempfile import mkdtemp
+from tempfile import mkstemp, mkdtemp
 
 
 import logging
@@ -150,18 +150,49 @@ def get_entries(dom, type):
    return entries
 
 
+# A unique directory for temporary files
+tmpdir_name = None
+
+def setup_tmpdir():
+   global tmpdir_name
+   tmpdir_name = mkdtemp(".tmp", "mcobex-")
+   os.chdir(tmpdir_name)
+
+def cleanup_tmpdir():
+   os.chdir(os.pardir)
+   shutil.rmtree(tmpdir_name)
+
+
+def _read(fd):
+   out = []
+   while True:
+      s = os.read(fd, 1024)
+      if not s:
+         break
+      out.append(s)
+   return ''.join(out)
+
+
 def _run(*args):
    """Run the obexftp binary catching errors"""
-   command = "%s %s %s" % (obexftp_prog, obexftp_args, ' '.join(args))
+
+   out_fd, out_filename = mkstemp(".tmp", "mcobex-", tmpdir_name)
+   err_fd, err_filename = mkstemp(".tmp", "mcobex-", tmpdir_name)
+
+   command = "%s %s %s >%s 2>%s" % (obexftp_prog, obexftp_args, ' '.join(args),
+      out_filename, err_filename)
+
    logger.debug("Running command %s", command)
-   w, r, e = os.popen3(command, 'r')
-   w.close()
-   errors = e.read()
-   e.close()
-   result = r.read()
-   r.close()
-   logger.debug("    errors: %s", errors)
+   os.system(command)
+
+   result = _read(out_fd)
+   os.remove(out_filename)
+
+   errors = _read(err_fd)
+   os.remove(err_filename)
+
    logger.debug("    result: %s", result)
+   logger.debug("    errors: %s", errors)
    return result, errors
 
 
@@ -190,20 +221,11 @@ def recursive_list(directory='/'):
 
 def mcobex_list():
    """List the entire VFS"""
-   recursive_list()
-
-
-# A unique directory for temporary files
-tmpdir_name = None
-
-def setup_tmpdir():
-   global tmpdir_name
-   tmpdir_name = mkdtemp(".tmp", "mcobex-")
-   os.chdir(tmpdir_name)
-
-def cleanup_tmpdir():
-   os.chdir(os.pardir)
-   shutil.rmtree(tmpdir_name)
+   setup_tmpdir()
+   try:
+      recursive_list()
+   finally:
+      cleanup_tmpdir()
 
 
 def mcobex_copyout():
@@ -217,7 +239,7 @@ def mcobex_copyout():
       try:
          os.rename(os.path.basename(obex_filename), real_filename)
       except OSError:
-         logger.exception("CopyOut %s to %s", obex_filename, real_filename)
+         logger.exception("Error CopyOut %s to %s", obex_filename, real_filename)
    finally:
       cleanup_tmpdir()
 
@@ -235,7 +257,7 @@ def mcobex_copyin():
          _run("-c '%s' -p '%s'" % (dirname, filename))
          os.rename(filename, real_filename) # by some reason MC wants the file back
       except OSError:
-         logger.exception("CopyIn %s to %s", real_filename, obex_filename)
+         logger.exception("Error CopyIn %s to %s", real_filename, obex_filename)
    finally:
       cleanup_tmpdir()
 
@@ -243,53 +265,81 @@ def mcobex_copyin():
 def mcobex_rm():
    """Remove a file from the VFS"""
    obex_filename = sys.argv[3]
-   _run("-k '%s'" % obex_filename)
+   try:
+      _run("-k '%s'" % obex_filename)
+   finally:
+      cleanup_tmpdir()
 
 
 def mcobex_mkdir():
    """Create a directory in the VFS"""
    obex_dirname = sys.argv[3]
-   _run("-C '%s'" % obex_dirname)
+   try:
+      _run("-C '%s'" % obex_dirname)
+   finally:
+      cleanup_tmpdir()
 
 
 mcobex_rmdir = mcobex_rm
 
 
-g = globals()
-command = sys.argv[1]
-procname = "mcobex_" + command
-
-if not g.has_key(procname):
-   logger.error("Unknown command %s", command)
+def transport_error(error_str):
+   logger.error("Error parsing the transport file: %s" % error_str)
    sys.exit(1)
-
 
 def setup_transport():
    """Setup transport parameters for the obexftp program"""
-   transport_file = open(sys.argv[2], 'r')
-   line = transport_file.readline()
-   transport_file.close()
+   try:
+      transport_file = open(sys.argv[2], 'r')
+      line = transport_file.readline()
+      transport_file.close()
+   except IOError:
+      transport_error("cannot read '%s'" % sys.argv[2])
 
    parts = line.strip().split()
    transport = parts[0].lower()
 
    if transport == "bluetooth":
+      if len(parts) < 3:
+         transport_error("not enough arguments for 'bluetooth' transport")
+      elif len(parts) > 3:
+         transport_error("too many arguments for 'bluetooth' transport")
       return ' '.join(["-b", parts[1], "-B", parts[2]])
    elif transport == "tty":
+      if len(parts) < 2:
+         transport_error("not enough arguments for 'tty' transport")
+      elif len(parts) > 2:
+         transport_error("too many arguments for 'tty' transport")
       return ' '.join(["-t", parts[1]])
    elif transport == "irda":
+      if len(parts) > 1:
+         transport_error("too many arguments for 'irda' transport")
       return "-i"
    else:
       logger.error("Unknown transport '%s'; expected 'bluetooth', 'tty' or 'irda'", transport)
       sys.exit(1)
 
+
+command = sys.argv[1]
+procname = "mcobex_" + command
+
+g = globals()
+if not g.has_key(procname):
+   logger.error("Unknown command %s", command)
+   sys.exit(1)
+
+
 try:
    obexftp_args = setup_transport()
+except SystemExit:
+   raise
 except:
-   logger.exception("Exception while parsing the transport file")
+   logger.exception("Error parsing the transport file")
    sys.exit(1)
 
 try:
    g[procname]()
+except SystemExit:
+   raise
 except:
-   logger.exception("Exception during run")
+   logger.exception("Error during run")
