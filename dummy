@@ -9,9 +9,9 @@ License: GPL.
 
 """
 
-__version__ = "0.3.0"
-__revision__ = "$Id: dummy,v 1.6 2004/06/13 10:23:20 phd Exp $"
-__date__ = "$Date: 2004/06/13 10:23:20 $"[7:-2]
+__version__ = "1.0.0"
+__revision__ = "$Id: dummy,v 1.7 2004/06/13 13:26:57 phd Exp $"
+__date__ = "$Date: 2004/06/13 13:26:57 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
@@ -64,6 +64,36 @@ def mcdummy_copyin():
    real_file = open(real_filename + "-dummy.tmp", 'w')
    real_file.write("Copied from %s\n" % real_filename)
    real_file.write("Copied  to  %s\n" % dummy_filename)
+   real_file.close()
+
+
+def mcdummy_rm():
+   """Remove a file from the VFS"""
+   # Ignore the VFS name (sys.argv[2])
+   dummy_filename = sys.argv[3]
+
+   real_file = open(".dummy.tmp", 'a')
+   real_file.write("Remove %s\n" % dummy_filename)
+   real_file.close()
+
+
+def mcdummy_mkdir():
+   """Create a directory in the VFS"""
+   # Ignore the VFS name (sys.argv[2])
+   dummy_dirname = sys.argv[3]
+
+   real_file = open(".dummy.tmp", 'a')
+   real_file.write("Create %s\n" % dummy_dirname)
+   real_file.close()
+
+
+def mcdummy_rmdir():
+   """Remove a directory from the VFS"""
+   # Ignore the VFS name (sys.argv[2])
+   dummy_dirname = sys.argv[3]
+
+   real_file = open(".dummy.tmp", 'a')
+   real_file.write("Remove %s\n" % dummy_dirname)
    real_file.close()
 
 
