@@ -4,7 +4,7 @@
 ObexFTP Virtual FileSystem for Midnight Commander.
 
 Author: Oleg BroytMann <phd@phd.pp.ru>.
-Copyright (C) 2004 PhiloSoft Design.
+Copyright (C) 2004, 2005 PhiloSoft Design.
 License: GPL.
 
 Manipulate a cell phone's filesystem calling obexftp binary. This is a
@@ -66,11 +66,11 @@ into a temporary directory, usually /tmp, or /var/tmp, or whatever directory
 is named in $TMP environment variable.
 """
 
-__version__ = "1.2.1"
-__revision__ = "$Id: obexftp,v 1.19 2004/10/03 15:02:45 phd Exp $"
-__date__ = "$Date: 2004/10/03 15:02:45 $"[7:-2]
+__version__ = "1.2.2"
+__revision__ = "$Id$"
+__date__ = "$Date$"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
-__copyright__ = "Copyright (C) 2004 PhiloSoft Design"
+__copyright__ = "Copyright (C) 2004, 2005 PhiloSoft Design"
 
 
 # Change this to suite your needs
@@ -79,7 +79,7 @@ obexftp_prog = "/usr/local/obex/bin/obexftp"
 
 import sys, os, shutil
 from time import sleep
-import xml.dom.minidom
+import xml.dom.minidom, locale
 from tempfile import mkstemp, mkdtemp, _candidate_tempdir_list
 
 
@@ -124,6 +124,9 @@ if not found:
 
 logger.removeHandler(log_err_handler)
 logger.addHandler(logging.FileHandler(logfile_name))
+
+locale.setlocale(locale.LC_ALL, '')
+charset = locale.getpreferredencoding()
 
 
 # Parse ObexFTP XML directory listings
@@ -238,6 +241,7 @@ def recursive_list(directory='/'):
 
    for entry in directories + files:
       fullpath = "%s/%s" % (directory, entry.name)
+      fullpath = fullpath.encode(charset)
       if fullpath.startswith('//'): fullpath = fullpath[1:]
       print entry.perm, "1 user group", entry.size, entry.mtime, fullpath
 
