@@ -1,0 +1,28 @@
+ObexFTP Virtual FileSystem for Midnight Commander
+
+
+WHAT IS IT
+   Manipulate a cell phone's filesystem in Midnight Commander using obexftp
+binary.
+
+
+WHAT'S NEW in version 1.1.0.
+   Added more inline documentations. Added logging. Catched more errors and
+exceptions.
+
+
+WHERE TO GET
+   Master site: http://phd.pp.ru/Software/cellphones/
+
+   Faster mirrors: http://phd.by.ru/Software/cellphones/
+      http://phd2.chat.ru/Software/cellphones/
+
+
+AUTHOR
+   Oleg Broytmann <phd@phd.pp.ru>
+
+COPYRIGHT
+   Copyright (C) 2004 PhiloSoft Design
+
+LICENSE
+   GPL
