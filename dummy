@@ -9,9 +9,9 @@ License: GPL.
 
 """
 
-__version__ = "0.1.1"
-__revision__ = "$Id: dummy,v 1.3 2004/06/12 22:49:16 phd Exp $"
-__date__ = "$Date: 2004/06/12 22:49:16 $"[7:-2]
+__version__ = "0.1.2"
+__revision__ = "$Id: dummy,v 1.4 2004/06/13 10:05:30 phd Exp $"
+__date__ = "$Date: 2004/06/13 10:05:30 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
@@ -38,11 +38,13 @@ def mcdummy_list():
    # Emit a dummy listing
    print "-r--r--r-- 1 user group 0 Jun 13 02:20 file0"
    print "-r--r--r-- 1 user group 1 Jun 13 02:21 file1"
-   print "-r--r--r-- 1 user group 2 Jun 13 02:22 file2"
+   print "dr--r--r-- 1 user group 2 Jun 13 02:22 subdir"
+   print "-r--r--r-- 1 user group 3 Jun 13 02:23 subdir/file3"
+   print "-r--r--r-- 1 user group 4 Jun 13 02:23 subdir/file4"
 
 
-command = sys.argv[1]
 g = globals()
+command = sys.argv[1]
 procname = "mcdummy_" + command
 
 if not g.has_key(procname):
