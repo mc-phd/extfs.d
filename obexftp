@@ -15,7 +15,7 @@ script is written in Python because I love Python, the best of all languages ;),
 and I need to parse XML directory listings from obexftp.
 
 The script requires Midnight Commander 3.1+ (http://www.ibiblio.org/mc/),
-Python 2.2+ (http://www.python.org/),
+Python 2.3+ (http://www.python.org/),
 OpenOBEX 1.0.1+ (http://openobex.sourceforge.net/) and
 ObexFTP 0.10.4+ (http://triq.net/obexftp).
 
@@ -65,8 +65,8 @@ or DEBUG and looking in the obexftp-mcextfs.log file.
 """
 
 __version__ = "1.1.0"
-__revision__ = "$Id: obexftp,v 1.14 2004/07/27 16:23:18 phd Exp $"
-__date__ = "$Date: 2004/07/27 16:23:18 $"[7:-2]
+__revision__ = "$Id: obexftp,v 1.15 2004/07/27 16:35:28 phd Exp $"
+__date__ = "$Date: 2004/07/27 16:35:28 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
