@@ -9,9 +9,9 @@ License: GPL.
 
 """
 
-__version__ = "0.2.0"
-__revision__ = "$Id: dummy,v 1.5 2004/06/13 10:18:37 phd Exp $"
-__date__ = "$Date: 2004/06/13 10:18:37 $"[7:-2]
+__version__ = "0.3.0"
+__revision__ = "$Id: dummy,v 1.6 2004/06/13 10:23:20 phd Exp $"
+__date__ = "$Date: 2004/06/13 10:23:20 $"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
 __copyright__ = "Copyright (C) 2004 PhiloSoft Design"
 
@@ -52,6 +52,18 @@ def mcdummy_copyout():
    real_file = open(real_filename, 'w')
    real_file.write("Copied from %s\n" % dummy_filename)
    real_file.write("Copied  to  %s\n" % real_filename)
+   real_file.close()
+
+
+def mcdummy_copyin():
+   """Put a file to the VFS"""
+   # Ignore the VFS name (sys.argv[2])
+   dummy_filename = sys.argv[3]
+   real_filename = sys.argv[4]
+
+   real_file = open(real_filename + "-dummy.tmp", 'w')
+   real_file.write("Copied from %s\n" % real_filename)
+   real_file.write("Copied  to  %s\n" % dummy_filename)
    real_file.close()
 
 
