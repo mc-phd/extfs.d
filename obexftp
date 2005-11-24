@@ -1,72 +1,72 @@
-#! /usr/local/bin/python -O
+#! /usr/bin/env python
 
-"""
-ObexFTP Virtual FileSystem for Midnight Commander.
+"""ObexFTP Virtual FileSystem for Midnight Commander
 
 Author: Oleg BroytMann <phd@phd.pp.ru>.
 Copyright (C) 2004, 2005 PhiloSoft Design.
 License: GPL.
 
-Manipulate a cell phone's filesystem calling obexftp binary. This is a
-complete user-mode solution, no kernel modules required (unlike SieFS or
-such). The script implements all commands of Midnight VFS, except for
-undocumented "run"; anyway there are no runnable files in the cell phone. The
-script is written in Python because I love Python, the best of all languages ;),
-and I need to parse XML directory listings from obexftp.
+Manipulate a cell phone's filesystem calling obexftp binary. This is a complete
+user-mode solution, no kernel modules required (unlike SieFS or such). The
+script implements all commands of Midnight Commander VFS, except for
+undocumented "run"; anyway there are no runnable files in cell phones. The
+script is written in Python because I I need to parse XML directory listings
+from obexftp, and Python is the best of all languages suited for the task ;).
 
 The script requires Midnight Commander 3.1+ (http://www.ibiblio.org/mc/),
 Python 2.3+ (http://www.python.org/),
 OpenOBEX 1.0.1+ (http://openobex.sourceforge.net/) and
 ObexFTP 0.10.4+ (http://triq.net/obexftp).
 
-Edit the script, and correct the shebang path, if your python is not in the
-/usr/local. Edit the full path to the obexftp binary (see below). Put the file
-in the /usr/[local/]lib/mc/extfs, and add a line "obexftp" to the
-/usr/[local/]lib/mc/extfs/extfs.ini.
+Edit the script, and correct the the full path to the obexftp binary (see
+obexftp_prog below). Put the script in the /usr/[local/][lib|share]/mc/extfs,
+and add a line "obexftp" to the /usr/[local/][lib|share]/mc/extfs/extfs.ini.
+Make the script executable.
 
-Create somewhere a transport file. The transport file may have any name, and
-is expected to be a text file with at least one line defining the transport to
+Create somewhere a transport file. The transport file may have any name, and is
+expected to be a text file with at least one line defining the transport to
 your device. Other lines in the file are ignored.
 
 First word in the line is a transport name - Bluetooth, TTY or IrDA. The name
 is case-insensitive.
 
 For the Bluetooth transport put there a line "Bluetooth CP:AD:RE:SS channel",
-where CP:AD:RE:SS is the hardware address of the device you want to connect
-to, and "channel" is the OBEX File Transfer channel; you can discover the
-address and the channel for your device by using commands like "hcitool scan"
-and "sdptool browse".
+where CP:AD:RE:SS is the hardware address of the device you want to connect to,
+and "channel" is the OBEX File Transfer channel; you can discover the address
+and the channel for your device by using commands like "hcitool scan" and
+"sdptool browse".
 
 For the TTY put the device name: "tty /dev/ttyUSB0".
 
 For the IrDA: just put "IrDA" in the file.
 
-Now run this "cd" command in the Midnight Commander (in the "bindings" file
-the command is "%cd"): cd transport#obexftp, where "transport" is the name of
-your transport file. The script uses obexftp to connect to the device and list
-files and directories. Please be warned that opening the VFS for the first
-time is VERY slow, because the script needs to scan the entire cell phone's
-filesystem. And there must be timeouts between connections, which don't make
-the scanning faster. Midnight Commander caches the result so you can browse
-and manipulate files and directories quickly.
+Now run this "cd" command in the Midnight Commander (in the "bindings" file the
+command is "%cd"): cd transport#obexftp, where "transport" is the name of your
+transport file. The script uses obexftp to connect to the device and list files
+and directories. Please be warned that opening the VFS for the first time is
+VERY slow, because the script needs to scan the entire cell phone's filesystem,
+and there are timeouts between connections, which don't make the scanning
+faster. Midnight Commander caches the result so you can browse and manipulate
+files and directories quickly.
 
 Please note that manipulating the filesystem using your phone's internal
-filemanager in parallel with the VFS leads to disagreement between the VFS
-cache and the phone. It is not very dangerous but inconvenient. There is no
-way to clear the VFS cache in Midnight Commander and reread the filesystem.
-You have to exit the VFS (cd /, for example) and return back using cd
+filemanager in parallel with the VFS leads to a disagreement between the VFS
+cache and the phone. It is not very dangerous but inconvenient. There is no way
+to clear the VFS cache in Midnight Commander and reread the filesystem. You
+have to exit the VFS (cd /, for example) and return back using cd
 transport#obexftp command. Sometimes even this doesn't help - Midnight
-Commander shows the same cached VFS image. Exit Midnight Commander and
-restart it.
+Commander shows the same cached VFS image. Exit Midnight Commander and restart
+it.
 
-If something goes wrong set the logging level (see setLevel() below) to INFO
-or DEBUG and look in the obexftp-mcextfs.log file. The file is put in the same
+If something goes wrong set the logging level (see setLevel() below) to INFO or
+DEBUG and look in the obexftp-mcextfs.log file. The file is put in the same
 directory as the transport file, if it possible; if not the file will be put
-into a temporary directory, usually /tmp, or /var/tmp, or whatever directory
-is named in $TMP environment variable.
+into a temporary directory, usually /tmp, or /var/tmp, or whatever directory is
+named in $TMP environment variable.
+
 """
 
-__version__ = "1.2.2"
+__version__ = "1.2.3"
 __revision__ = "$Id$"
 __date__ = "$Date$"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
@@ -96,8 +96,8 @@ ObexFTP Virtual FileSystem for Midnight Commander version %s
 Author: %s
 %s
 
-This is not a program. It is ObexFTP Virtual FileSystem for Midnight Commander.
-Put it in /usr/lib/mc/extfs. For more information read the source!""",
+This is not a program. Put the script in /usr/[local/][lib|shre]/mc/extfs.
+For more information read the source!""",
    __version__, __author__, __copyright__
 )
    sys.exit(1)
