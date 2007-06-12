@@ -3,7 +3,7 @@
 """ObexFTP Virtual FileSystem for Midnight Commander
 
 Author: Oleg BroytMann <phd@phd.pp.ru>.
-Copyright (C) 2004, 2005 PhiloSoft Design.
+Copyright (C) 2004-2007 PhiloSoft Design.
 License: GPL.
 
 Manipulate a cell phone's filesystem calling obexftp binary. This is a complete
@@ -66,11 +66,11 @@ named in $TMP environment variable.
 
 """
 
-__version__ = "1.2.3"
+__version__ = "1.2.4"
 __revision__ = "$Id$"
 __date__ = "$Date$"[7:-2]
 __author__ = "Oleg Broytmann <phd@phd.pp.ru>"
-__copyright__ = "Copyright (C) 2004, 2005 PhiloSoft Design"
+__copyright__ = "Copyright (C) 2004-2007 PhiloSoft Design"
 
 
 # Change this to suite your needs
@@ -96,7 +96,7 @@ ObexFTP Virtual FileSystem for Midnight Commander version %s
 Author: %s
 %s
 
-This is not a program. Put the script in /usr/[local/][lib|shre]/mc/extfs.
+This is not a program. Put the script in /usr/[local/][lib|share]/mc/extfs.
 For more information read the source!""",
    __version__, __author__, __copyright__
 )
