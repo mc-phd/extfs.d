@@ -2,10 +2,6 @@
 
 """ObexFTP Virtual FileSystem for Midnight Commander
 
-Author: Oleg BroytMann <phd@phd.pp.ru>.
-Copyright (C) 2004-2007 PhiloSoft Design.
-License: GPL.
-
 Manipulate a cell phone's filesystem calling obexftp binary. This is a complete
 user-mode solution, no kernel modules required (unlike SieFS or such). The
 script implements all commands of Midnight Commander VFS, except for
@@ -69,8 +65,9 @@ named in $TMP environment variable.
 __version__ = "1.2.4"
 __revision__ = "$Id$"
 __date__ = "$Date$"[7:-2]
-__author__ = "Oleg Broytmann <phd@phd.pp.ru>"
-__copyright__ = "Copyright (C) 2004-2007 PhiloSoft Design"
+__author__ = "Oleg Broytman <phd@phd.pp.ru>"
+__copyright__ = "Copyright (C) 2004-2009 PhiloSoft Design"
+__license__ = "GPL"
 
 
 # Change this to suite your needs
