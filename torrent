@@ -22,7 +22,7 @@ metafile. The VFS doesn't check if the torrent contains .META file or directory
 (quite unlikely).
 
 Date/time for all files is set at midnight of the 1st January of the current
-year.
+year. The filesystem is read-only, of course.
 
 """
 
