@@ -22,7 +22,7 @@ metafile. The VFS doesn't check if the torrent contains .META file or directory
 (quite unlikely).
 
 Date/time for all files is set at midnight of the 1st January of the current
-year. The filesystem is read-only, of course.
+year. The filesystem is, naturally, read-only.
 
 """
 
@@ -125,6 +125,9 @@ def mctorrent_list():
     if 'private' in info:
         meta.append(('.META/private', 1))
 
+    if 'piece length' in info:
+        meta.append(('.META/piece length', len(str(info['piece length']))))
+
     for name, size in paths + meta:
         print "-r--r--r-- 1 user group %d Jan 1 00:00 %s" % (size, name)
 
@@ -150,13 +153,17 @@ def mctorrent_copyout():
                 torrent_error('Unknown ' + name)
             break
 
-    if torrent_filename == '.META/private':
+    if torrent_filename in ('.META/private', '.META/piece length'):
         if 'info' not in torrent:
             torrent_error('Info absent')
         info = torrent['info']
-        if 'private' not in info:
-            torrent_error('Info absent')
-        data = str(info['private'])
+        if torrent_filename == '.META/private':
+            if 'private' not in info:
+                torrent_error('Info absent')
+        if torrent_filename == '.META/piece length':
+            if 'piece length' not in info:
+                torrent_error('Info absent')
+        data = str(info[torrent_filename[len('.META/'):]])
 
     if not torrent_filename.startswith('.META/'):
         data = ''
