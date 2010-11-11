@@ -89,6 +89,8 @@ def mctorrent_list():
         if 'length' not in info:
             torrent_error('Unknown length')
         length = info['length']
+        if charset and encoding and (charset != encoding):
+            name = name.decode(encoding, 'replace').encode(charset, 'replace')
         paths = [(name, length)]
 
     meta = []
