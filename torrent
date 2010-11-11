@@ -13,7 +13,8 @@ executable.
 Run this "cd" command in the Midnight Commander (in the "bindings" file the
 command is "%cd"): cd file#torrent, where "file" is the name of your torrent
 metafile. The VFS lists all files and directories from the torrent metafile;
-all files appear empty, of course, but the sizes are shown.
+all files appear empty, of course, but the sizes are shown. Filenames are
+reencoded from the metafile's encoding to the current locale.
 
 Along with the files/directories in the torrent metafile the VFS also presents
 meta information - in the form of files in .META directory. The size and
@@ -34,7 +35,6 @@ __copyright__ = "Copyright (C) 2010 PhiloSoft Design"
 __license__ = "GPL"
 
 import locale, sys, os
-from tempfile import _candidate_tempdir_list
 from eff_bdecode import decode
 
 import logging
@@ -56,28 +56,6 @@ For more information read the source!""",
     sys.exit(1)
 
 
-tempdirlist = _candidate_tempdir_list()
-tempdirlist.insert(0, os.path.abspath(os.path.dirname(sys.argv[2])))
-
-found = False
-for tempdir in tempdirlist:
-    try:
-        logfile_name = os.path.join(tempdir, 'torrent-mcextfs.log')
-        logfile = open(logfile_name, 'w')
-    except IOError:
-        pass
-    else:
-        found = True
-        logfile.close()
-        break
-
-if not found:
-    logger.critical("Cannot initialize error log file in directories %s" % str(tempdirlist))
-    sys.exit(1)
-
-logger.removeHandler(log_err_handler)
-logger.addHandler(logging.FileHandler(logfile_name))
-
 locale.setlocale(locale.LC_ALL, '')
 charset = locale.getpreferredencoding()
 
@@ -96,14 +74,17 @@ def mctorrent_list():
     if 'files' in info:
         files = info['files']
         paths = []
+        encoding = torrent.get('encoding', None)
         for file in files:
             if 'path' not in file:
                 torrent_error('Unknown path')
             if 'length' not in file:
                 torrent_error('Unknown length')
-            path = file['path']
+            path = '/'.join([name] + file['path'])
+            if charset and encoding and (charset != encoding):
+                path = path.decode(encoding, 'replace').encode(charset, 'replace')
             length = file['length']
-            paths.append(('/'.join([name] + path), length))
+            paths.append((path, length))
     else: # One-file torrent
         if 'length' not in info:
             torrent_error('Unknown length')
