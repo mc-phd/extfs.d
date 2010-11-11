@@ -1,0 +1,226 @@
+#! /usr/bin/env python
+
+"""Torrent Virtual FileSystem for Midnight Commander
+
+The script requires Midnight Commander 3.1+
+(http://www.midnight-commander.org/), Python 2.4+ (http://www.python.org/),
+module eff_bdecode.py (http://effbot.org/zone/bencode.htm).
+
+Put the script in the /usr/[local/][lib|share]/mc/extfs/, and add a line
+"torrent" to the /usr/[local/][lib|share]/mc/extfs/extfs.ini. Make the script
+executable.
+
+Run this "cd" command in the Midnight Commander (in the "bindings" file the
+command is "%cd"): cd file#torrent, where "file" is the name of your torrent
+metafile. The VFS lists all files and directories from the torrent metafile;
+all files appear empty, of course, but the sizes are shown.
+
+Along with the files/directories in the torrent metafile the VFS also presents
+meta information - in the form of files in .META directory. The size and
+contents of these files are taken from the corresponding fields in the torrent
+metafile. The VFS doesn't check if the torrent contains .META file or directory
+(quite unlikely).
+
+Date/time for all files is set at midnight of the 1st January of the current
+year.
+
+"""
+
+__version__ = "1.0.0"
+__revision__ = "$Id$"
+__date__ = "$Date$"
+__author__ = "Oleg Broytman <phd@phd.pp.ru>"
+__copyright__ = "Copyright (C) 2010 PhiloSoft Design"
+__license__ = "GPL"
+
+import locale, sys, os
+from tempfile import _candidate_tempdir_list
+from eff_bdecode import decode
+
+import logging
+logger = logging.getLogger('torrent-mcextfs')
+log_err_handler = logging.StreamHandler(sys.stderr)
+logger.addHandler(log_err_handler)
+logger.setLevel(logging.INFO)
+
+if len(sys.argv) < 3:
+    logger.critical("""\
+Torrent Virtual FileSystem for Midnight Commander version %s
+Author: %s
+%s
+
+This is not a program. Put the script in /usr/[local/][lib|share]/mc/extfs.
+For more information read the source!""",
+   __version__, __author__, __copyright__
+)
+    sys.exit(1)
+
+
+tempdirlist = _candidate_tempdir_list()
+tempdirlist.insert(0, os.path.abspath(os.path.dirname(sys.argv[2])))
+
+found = False
+for tempdir in tempdirlist:
+    try:
+        logfile_name = os.path.join(tempdir, 'torrent-mcextfs.log')
+        logfile = open(logfile_name, 'w')
+    except IOError:
+        pass
+    else:
+        found = True
+        logfile.close()
+        break
+
+if not found:
+    logger.critical("Cannot initialize error log file in directories %s" % str(tempdirlist))
+    sys.exit(1)
+
+logger.removeHandler(log_err_handler)
+logger.addHandler(logging.FileHandler(logfile_name))
+
+locale.setlocale(locale.LC_ALL, '')
+charset = locale.getpreferredencoding()
+
+
+def mctorrent_list():
+    """List the entire VFS"""
+
+    if 'info' not in torrent:
+        torrent_error('Info absent')
+
+    info = torrent['info']
+    if 'name' not in info:
+        torrent_error('Unknown name')
+
+    name = info['name']
+    if 'files' in info:
+        files = info['files']
+        paths = []
+        for file in files:
+            if 'path' not in file:
+                torrent_error('Unknown path')
+            if 'length' not in file:
+                torrent_error('Unknown length')
+            path = file['path']
+            length = file['length']
+            paths.append(('/'.join([name] + path), length))
+    else: # One-file torrent
+        if 'length' not in info:
+            torrent_error('Unknown length')
+        length = info['length']
+        paths = [(name, length)]
+
+    meta = []
+    for name in 'comment', 'encoding', 'creation date', 'announce-list', \
+            'created by', 'announce':
+        if name in torrent:
+            if name == 'creation date':
+                data = decode_datetime(torrent[name])
+            elif name == 'announce-list':
+                data = decode_list(torrent[name])
+            else:
+                data = torrent[name]
+            meta.append(('.META/' + name, len(data)))
+
+    if 'private' in info:
+        meta.append(('.META/private', 1))
+
+    for name, size in paths + meta:
+        print "-r--r--r-- 1 user group %d Jan 1 00:00 %s" % (size, name)
+
+
+def mctorrent_copyout():
+    """Extract a file from the VFS"""
+
+    torrent_filename = sys.argv[3]
+    real_filename = sys.argv[4]
+    data = None
+
+    for name in 'comment', 'encoding', 'creation date', 'announce-list', \
+            'created by', 'announce':
+        if torrent_filename == '.META/' + name:
+            if name in torrent:
+                if name == 'creation date':
+                    data = decode_datetime(torrent[name])
+                elif name == 'announce-list':
+                    data = decode_list(torrent[name])
+                else:
+                    data = str(torrent[name])
+            else:
+                torrent_error('Unknown ' + name)
+            break
+
+    if torrent_filename == '.META/private':
+        if 'info' not in torrent:
+            torrent_error('Info absent')
+        info = torrent['info']
+        if 'private' not in info:
+            torrent_error('Info absent')
+        data = str(info['private'])
+
+    if not torrent_filename.startswith('.META/'):
+        data = ''
+
+    if data is None:
+        torrent_error('Unknown file name')
+    else:
+        outfile = open(real_filename, 'w')
+        outfile.write(data)
+        outfile.close()
+
+
+def mctorrent_copyin():
+    """Put a file to the VFS"""
+    sys.exit("Torrent VFS doesn't support adding files")
+
+def mctorrent_rm():
+    """Remove a file from the VFS"""
+    sys.exit("Torrent VFS doesn't support removing files/directories")
+
+mctorrent_rmdir = mctorrent_rm
+
+def mctorrent_mkdir():
+    """Create a directory in the VFS"""
+    sys.exit("Torrent VFS doesn't support creating directories")
+
+
+def torrent_error(error_str):
+    logger.critical("Error parsing the torrent metafile: %s", error_str)
+    sys.exit(1)
+
+def decode_torrent():
+    try:
+        torrent_file = open(sys.argv[2], 'r')
+        data = torrent_file.read()
+        torrent_file.close()
+        return decode(data)
+    except IOError, error_str:
+        torrent_error(error_str)
+
+
+def decode_datetime(dt):
+    from time import localtime, asctime
+    the_time = float(dt)
+    l_now = localtime(the_time)
+    return asctime(l_now)
+
+def decode_list(announce):
+    return '\n'.join(l[0] for l in announce)
+
+
+command = sys.argv[1]
+procname = "mctorrent_" + command
+
+g = globals()
+if not g.has_key(procname):
+    logger.critical("Unknown command %s", command)
+    sys.exit(1)
+
+torrent = decode_torrent()
+
+try:
+    g[procname]()
+except SystemExit:
+    raise
+except:
+    logger.exception("Error during run")
