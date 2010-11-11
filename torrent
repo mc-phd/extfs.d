@@ -162,17 +162,17 @@ def mctorrent_copyout():
 
 def mctorrent_copyin():
     """Put a file to the VFS"""
-    sys.exit("Torrent VFS doesn't support adding files")
+    sys.exit("Torrent VFS doesn't support adding files (read-only filesystem)")
 
 def mctorrent_rm():
     """Remove a file from the VFS"""
-    sys.exit("Torrent VFS doesn't support removing files/directories")
+    sys.exit("Torrent VFS doesn't support removing files/directories (read-only filesystem)")
 
 mctorrent_rmdir = mctorrent_rm
 
 def mctorrent_mkdir():
     """Create a directory in the VFS"""
-    sys.exit("Torrent VFS doesn't support creating directories")
+    sys.exit("Torrent VFS doesn't support creating directories (read-only filesystem)")
 
 
 def torrent_error(error_str):
