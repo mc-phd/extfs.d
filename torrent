@@ -71,10 +71,11 @@ def mctorrent_list():
         torrent_error('Unknown name')
 
     name = info['name']
+    encoding = torrent.get('encoding', None)
+
     if 'files' in info:
         files = info['files']
         paths = []
-        encoding = torrent.get('encoding', None)
         for file in files:
             if 'path' not in file:
                 torrent_error('Unknown path')
