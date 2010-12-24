@@ -30,7 +30,7 @@ year. The filesystem is, naturally, read-only.
 __version__ = "1.0.0"
 __revision__ = "$Id$"
 __date__ = "$Date$"
-__author__ = "Oleg Broytman <phd@phd.pp.ru>"
+__author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2010 PhiloSoft Design"
 __license__ = "GPL"
 
