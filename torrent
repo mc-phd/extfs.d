@@ -6,9 +6,10 @@ The script requires Midnight Commander 3.1+
 (http://www.midnight-commander.org/), Python 2.4+ (http://www.python.org/),
 module eff_bdecode.py (http://effbot.org/zone/bencode.htm).
 
-Make the script executable and put it in the
-/usr/[local/][lib|share]/mc/extfs/, add a line "torrent" to the
-/usr/[local/][lib|share]/mc/extfs/extfs.ini.
+For mc 4.7+ put the script in $HOME/.mc/extfs.d.
+For older versions put it in /usr/[local/][lib|share]/mc/extfs
+and add a line "torrent" to the /usr/[local/][lib|share]/mc/extfs/extfs.ini.
+Make the script executable.
 
 Run this "cd" command in the Midnight Commander (in the "bindings" file the
 command is "%cd"): cd file#torrent, where "file" is the name of your torrent
@@ -19,7 +20,7 @@ reencoded from the metafile's encoding to the current locale.
 Along with the files/directories in the torrent metafile the VFS also presents
 meta information - in the form of files in .META directory. The size and
 contents of these files are taken from the corresponding fields in the torrent
-metafile. The VFS doesn't check if the torrent consists of .META file or
+metafile. The script doesn't check if the torrent consists of a .META file or
 directory (quite unlikely).
 
 Date/time for all files is set to midnight of the 1st January of the current
@@ -31,7 +32,7 @@ __version__ = "1.0.0"
 __revision__ = "$Id$"
 __date__ = "$Date$"
 __author__ = "Oleg Broytman <phd@phdru.name>"
-__copyright__ = "Copyright (C) 2010 PhiloSoft Design"
+__copyright__ = "Copyright (C) 2010, 2011 PhiloSoft Design"
 __license__ = "GPL"
 
 import locale, sys, os

@@ -15,7 +15,8 @@ OpenOBEX 1.0.1+ (http://openobex.sourceforge.net/) and
 ObexFTP 0.10.4+ (http://triq.net/obexftp).
 
 Edit the script, and correct the the full path to the obexftp binary (see
-obexftp_prog below). Put the script in the /usr/[local/][lib|share]/mc/extfs,
+obexftp_prog below). For mc 4.7+ put the script in $HOME/.mc/extfs.d.
+For older versions put it in /usr/[local/][lib|share]/mc/extfs
 and add a line "obexftp" to the /usr/[local/][lib|share]/mc/extfs/extfs.ini.
 Make the script executable.
 
@@ -68,7 +69,7 @@ __version__ = "1.3.0"
 __revision__ = "$Id$"
 __date__ = "$Date$"[7:-2]
 __author__ = "Oleg Broytman <phd@phdru.name>"
-__copyright__ = "Copyright (C) 2004-2010 PhiloSoft Design"
+__copyright__ = "Copyright (C) 2004-2011 PhiloSoft Design"
 __license__ = "GPL"
 
 
