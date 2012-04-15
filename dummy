@@ -1,15 +1,9 @@
-#! /usr/local/bin/python -O
+#! /usr/bin/env python
+"""Dummy VFS for Midnight Commander. Just for a test."""
 
-"""
-Dummy VFS for Midnight Commander. Just for a test.
-
-"""
-
-__version__ = "1.0.1"
-__revision__ = "$Id$"
-__date__ = "$Date$"[7:-2]
+__version__ = "1.0.2"
 __author__ = "Oleg Broytman <phd@phdru.name>"
-__copyright__ = "Copyright (C) 2004-2010 PhiloSoft Design"
+__copyright__ = "Copyright (C) 2004-2012 PhiloSoft Design"
 __license__ = "GPL"
 
 
