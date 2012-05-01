@@ -6,6 +6,9 @@ WHAT IS IT
 binary.
 
 
+WHAT'S NEW in version 1.3.1 (2012-04-15)
+   Removed svn:keywods.
+
 WHAT'S NEW in version 1.3.0 (2010-05-09)
    USB transport.
 
@@ -25,7 +28,7 @@ AUTHOR
    Oleg Broytman <phd@phdru.name>
 
 COPYRIGHT
-   Copyright (C) 2004-2009 PhiloSoft Design
+   Copyright (C) 2004-2012 PhiloSoft Design
 
 LICENSE
    GPL
