@@ -126,7 +126,7 @@ def mctorrent_list():
                 'created by', 'creation date', 'encoding':
         if name in torrent:
             if name == 'announce-list':
-                data = decode_list(torrent[name])
+                data = decode_announce_list(torrent[name])
             elif name == 'codepage':
                 data = str(torrent[name])
             elif name == 'creation date':
@@ -157,7 +157,7 @@ def mctorrent_copyout():
         if torrent_filename == '.META/' + name:
             if name in torrent:
                 if name == 'announce-list':
-                    data = decode_list(torrent[name])
+                    data = decode_announce_list(torrent[name])
                 elif name == 'codepage':
                     data = str(torrent[name])
                 elif name == 'creation date':
@@ -226,7 +226,7 @@ def decode_datetime(dt):
     l_now = localtime(the_time)
     return asctime(l_now)
 
-def decode_list(announce):
+def decode_announce_list(announce):
     return '\n'.join(l[0] for l in announce)
 
 
