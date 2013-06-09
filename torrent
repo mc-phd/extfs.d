@@ -124,7 +124,7 @@ def mctorrent_list():
     meta = []
     for name in 'announce', 'announce-list', 'codepage', 'comment', \
                 'created by', 'creation date', 'encoding', \
-                'publisher', 'publisher-url':
+                'nodes', 'publisher', 'publisher-url':
         if name == 'comment' and 'comment.utf-8' in torrent:
             data = torrent['comment.utf-8'].decode('utf-8').encode(charset, 'replace')
             meta.append(('.META/' + name, len(data)))
@@ -135,6 +135,9 @@ def mctorrent_list():
                 data = str(torrent[name])
             elif name == 'creation date':
                 data = decode_datetime(torrent[name])
+            elif name == 'nodes':
+                data = ['%s:%s' % (host, port) for host, port in torrent[name]]
+                data = '\n'.join(data)
             else:
                 data = torrent[name]
             meta.append(('.META/' + name, len(data)))
@@ -158,7 +161,7 @@ def mctorrent_copyout():
 
     for name in 'announce', 'announce-list', 'codepage', 'comment', \
                 'created by', 'creation date', 'encoding', \
-                'publisher', 'publisher-url':
+                'nodes', 'publisher', 'publisher-url':
         if name == 'comment' and 'comment.utf-8' in torrent:
             data = torrent['comment.utf-8'].decode('utf-8').encode(charset, 'replace')
             meta.append(('.META/' + name, len(data)))
@@ -170,6 +173,9 @@ def mctorrent_copyout():
                     data = str(torrent[name])
                 elif name == 'creation date':
                     data = decode_datetime(torrent[name])
+                elif name == 'nodes':
+                    data = ['%s:%s' % (host, port) for host, port in torrent[name]]
+                    data = '\n'.join(data)
                 else:
                     data = str(torrent[name])
             else:
