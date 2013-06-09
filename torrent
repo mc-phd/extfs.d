@@ -65,7 +65,7 @@ def mctorrent_list():
         torrent_error('Info absent')
 
     info = torrent['info']
-    if 'name' not in info:
+    if 'name' not in info or 'name.utf-8' not in info:
         torrent_error('Unknown name')
 
     codepage = torrent.get('codepage', None)
@@ -74,25 +74,50 @@ def mctorrent_list():
         encoding = str(codepage)
 
     name = info['name']
+    name_utf8 = info.get('name.utf-8', None)
 
     if 'files' in info:
         files = info['files']
         paths = []
         for file in files:
-            if 'path' not in file:
+            if 'path' not in file or 'path.utf-8' not in file:
                 torrent_error('Unknown path')
             if 'length' not in file:
                 torrent_error('Unknown length')
-            path = '/'.join([name] + file['path'])
-            if charset and encoding and (charset != encoding):
-                path = path.decode(encoding, 'replace').encode(charset, 'replace')
+            if 'path.utf-8' in file:
+                if name_utf8:
+                    path = '/'.join([name_utf8] + file['path.utf-8'])
+                    if charset and (charset != 'utf-8'):
+                        path = path.decode('utf-8', 'replace').encode(charset, 'replace')
+                else:
+                    _name_utf8 = name
+                    if encoding and (encoding != 'utf-8'):
+                        _name_utf8 = _name_utf8.decode(encoding, 'replace').encode('utf-8', 'replace')
+                    path = '/'.join([_name_utf8] + file['path.utf-8'])
+                    if charset and (charset != 'utf-8'):
+                        path = path.decode('utf-8', 'replace').encode(charset, 'replace')
+            else:
+                if name_utf8:
+                    path = file['path']
+                    if encoding and (encoding != 'utf-8'):
+                        path = path.decode(encoding, 'replace').encode('utf-8', 'replace')
+                    path = '/'.join([name_utf8] + path)
+                    if charset and (charset != 'utf-8'):
+                        path = path.decode('utf-8', 'replace').encode(charset, 'replace')
+                else:
+                    path = '/'.join([name] + file['path'])
+                    if charset and encoding and (charset != encoding):
+                        path = path.decode(encoding, 'replace').encode(charset, 'replace')
             length = file['length']
             paths.append((path, length))
     else: # One-file torrent
         if 'length' not in info:
             torrent_error('Unknown length')
         length = info['length']
-        if charset and encoding and (charset != encoding):
+        if name_utf8:
+            if charset and (charset != 'utf-8'):
+                name = name_utf8.decode('utf-8', 'replace').encode(charset, 'replace')
+        elif charset and encoding and (charset != encoding):
             name = name.decode(encoding, 'replace').encode(charset, 'replace')
         paths = [(name, length)]
 
