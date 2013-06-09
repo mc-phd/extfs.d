@@ -124,7 +124,10 @@ def mctorrent_list():
     meta = []
     for name in 'announce', 'announce-list', 'codepage', 'comment', \
                 'created by', 'creation date', 'encoding':
-        if name in torrent:
+        if name == 'comment' and 'comment.utf-8' in torrent:
+            data = torrent['comment.utf-8'].decode('utf-8').encode(charset, 'replace')
+            meta.append(('.META/' + name, len(data)))
+        elif name in torrent:
             if name == 'announce-list':
                 data = decode_announce_list(torrent[name])
             elif name == 'codepage':
@@ -154,7 +157,10 @@ def mctorrent_copyout():
 
     for name in 'announce', 'announce-list', 'codepage', 'comment', \
                 'created by', 'creation date', 'encoding':
-        if torrent_filename == '.META/' + name:
+        if name == 'comment' and 'comment.utf-8' in torrent:
+            data = torrent['comment.utf-8'].decode('utf-8').encode(charset, 'replace')
+            meta.append(('.META/' + name, len(data)))
+        elif torrent_filename == '.META/' + name:
             if name in torrent:
                 if name == 'announce-list':
                     data = decode_announce_list(torrent[name])
