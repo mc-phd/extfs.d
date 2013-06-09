@@ -14,7 +14,7 @@ Run this "cd" command in the Midnight Commander (in the "bindings" file the
 command is "%cd"): cd file#torrent, where "file" is the name of your torrent
 metafile. The VFS lists all files and directories from the torrent metafile;
 all files appear empty, of course, but the sizes are shown. Filenames are
-reencoded from the metafile's encoding to the current locale.
+reencoded from the metafile's encoding/codepage to the current locale.
 
 Along with the files/directories in the torrent metafile the VFS also presents
 meta information - in the form of files in .META directory. The size and
@@ -27,9 +27,9 @@ year. The filesystem is, naturally, read-only.
 
 """
 
-__version__ = "1.0.1"
+__version__ = "1.1.0"
 __author__ = "Oleg Broytman <phd@phdru.name>"
-__copyright__ = "Copyright (C) 2010-2012 PhiloSoft Design"
+__copyright__ = "Copyright (C) 2010-2013 PhiloSoft Design"
 __license__ = "GPL"
 
 import locale, sys, os
@@ -68,8 +68,12 @@ def mctorrent_list():
     if 'name' not in info:
         torrent_error('Unknown name')
 
-    name = info['name']
+    codepage = torrent.get('codepage', None)
     encoding = torrent.get('encoding', None)
+    if not encoding and codepage:
+        encoding = str(codepage)
+
+    name = info['name']
 
     if 'files' in info:
         files = info['files']
@@ -93,13 +97,15 @@ def mctorrent_list():
         paths = [(name, length)]
 
     meta = []
-    for name in 'comment', 'encoding', 'creation date', 'announce-list', \
-            'created by', 'announce':
+    for name in 'announce', 'announce-list', 'codepage', 'comment', \
+                'created by', 'creation date', 'encoding':
         if name in torrent:
-            if name == 'creation date':
-                data = decode_datetime(torrent[name])
-            elif name == 'announce-list':
+            if name == 'announce-list':
                 data = decode_list(torrent[name])
+            elif name == 'codepage':
+                data = str(torrent[name])
+            elif name == 'creation date':
+                data = decode_datetime(torrent[name])
             else:
                 data = torrent[name]
             meta.append(('.META/' + name, len(data)))
@@ -121,14 +127,16 @@ def mctorrent_copyout():
     real_filename = sys.argv[4]
     data = None
 
-    for name in 'comment', 'encoding', 'creation date', 'announce-list', \
-            'created by', 'announce':
+    for name in 'announce', 'announce-list', 'codepage', 'comment', \
+                'created by', 'creation date', 'encoding':
         if torrent_filename == '.META/' + name:
             if name in torrent:
-                if name == 'creation date':
-                    data = decode_datetime(torrent[name])
-                elif name == 'announce-list':
+                if name == 'announce-list':
                     data = decode_list(torrent[name])
+                elif name == 'codepage':
+                    data = str(torrent[name])
+                elif name == 'creation date':
+                    data = decode_datetime(torrent[name])
                 else:
                     data = str(torrent[name])
             else:
