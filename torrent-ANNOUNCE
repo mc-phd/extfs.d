@@ -7,7 +7,8 @@ Midnight Commander.
 
 
 WHAT'S NEW in version 1.1.0 (2013-06-10)
-   Use name.utf-8 and path.utf-8 if those are available.
+   Show publisher and publisher-url if they are available.
+   Use name.utf-8, path.utf-8 and comment.utf-8 if those are available.
    Use codepage instead of encoding if codepage is available
    and encoding is not.
 
