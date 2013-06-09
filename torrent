@@ -65,7 +65,7 @@ def mctorrent_list():
         torrent_error('Info absent')
 
     info = torrent['info']
-    if 'name' not in info or 'name.utf-8' not in info:
+    if 'name' not in info and 'name.utf-8' not in info:
         torrent_error('Unknown name')
 
     codepage = torrent.get('codepage', None)
@@ -80,7 +80,7 @@ def mctorrent_list():
         files = info['files']
         paths = []
         for file in files:
-            if 'path' not in file or 'path.utf-8' not in file:
+            if 'path' not in file and 'path.utf-8' not in file:
                 torrent_error('Unknown path')
             if 'length' not in file:
                 torrent_error('Unknown length')
