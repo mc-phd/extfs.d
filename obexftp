@@ -10,7 +10,7 @@ from obexftp, and Python is the best of all languages suited for the task ;).
 
 The script requires Midnight Commander 3.1+ (http://www.ibiblio.org/mc/),
 Python 2.3+ (http://www.python.org/),
-OpenOBEX 1.0.1+ (http://openobex.sourceforge.net/) and
+OpenOBEX 1.0.1+ (http://dev.zuckschwerdt.org/openobex/) and
 ObexFTP 0.10.4+ (http://triq.net/obexftp).
 
 Edit the script, and correct the the full path to the obexftp binary (see
