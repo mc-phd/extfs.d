@@ -6,6 +6,9 @@ WHAT IS IT
 Midnight Commander.
 
 
+WHAT'S NEW in version 1.1.1 (2013-11-11)
+   Documented the fact that the script can be put in $HOME/.mc/extfs.d.
+
 WHAT'S NEW in version 1.1.0 (2013-06-10)
    Show DHT nodes if they are present.
    Show publisher and publisher-url if they are available.

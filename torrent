@@ -27,7 +27,7 @@ year. The filesystem is, naturally, read-only.
 
 """
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2010-2013 PhiloSoft Design"
 __license__ = "GPL"
@@ -47,8 +47,8 @@ Torrent Virtual FileSystem for Midnight Commander version %s
 Author: %s
 %s
 
-This is not a program. Put the script in /usr/[local/][lib|share]/mc/extfs.
-For more information read the source!""",
+This is not a program. Put the script in $HOME/.mc/extfs.d or
+/usr/[local/][lib|share]/mc/extfs. For more information read the source!""",
    __version__, __author__, __copyright__
 )
     sys.exit(1)
