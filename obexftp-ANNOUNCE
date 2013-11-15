@@ -6,6 +6,9 @@ WHAT IS IT
 binary.
 
 
+WHAT'S NEW in version 1.4.0 (2013-11-??)
+   Get charset from the environment.
+
 WHAT'S NEW in version 1.3.2 (2013-11-11)
    Documented the fact that the script can be put in $HOME/.mc/extfs.d.
 

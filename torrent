@@ -27,13 +27,39 @@ year. The filesystem is, naturally, read-only.
 
 """
 
-__version__ = "1.1.1"
+__version__ = "1.2.0"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2010-2013 PhiloSoft Design"
 __license__ = "GPL"
 
-import locale, sys, os
+
+import sys, os
 from eff_bdecode import decode
+
+try:
+   import locale
+   use_locale = True
+except ImportError:
+   use_locale = False
+
+if use_locale:
+   # Get the default charset.
+   try:
+      lcAll = locale.getdefaultlocale()
+   except locale.Error, err:
+      print >>sys.stderr, "WARNING:", err
+      lcAll = []
+
+   if len(lcAll) == 2:
+      default_encoding = lcAll[1]
+   else:
+      try:
+         default_encoding = locale.getpreferredencoding()
+      except locale.Error, err:
+         print >>sys.stderr, "WARNING:", err
+         default_encoding = sys.getdefaultencoding()
+else:
+   default_encoding = sys.getdefaultencoding()
 
 import logging
 logger = logging.getLogger('torrent-mcextfs')
@@ -53,9 +79,7 @@ This is not a program. Put the script in $HOME/.mc/extfs.d or
 )
     sys.exit(1)
 
-
 locale.setlocale(locale.LC_ALL, '')
-charset = locale.getpreferredencoding()
 
 
 def mctorrent_list():
@@ -87,27 +111,27 @@ def mctorrent_list():
             if 'path.utf-8' in file:
                 if name_utf8:
                     path = '/'.join([name_utf8] + file['path.utf-8'])
-                    if charset and (charset != 'utf-8'):
-                        path = path.decode('utf-8', 'replace').encode(charset, 'replace')
+                    if default_encoding != 'utf-8':
+                        path = path.decode('utf-8', 'replace').encode(default_encoding, 'replace')
                 else:
                     _name_utf8 = name
                     if encoding and (encoding != 'utf-8'):
                         _name_utf8 = _name_utf8.decode(encoding, 'replace').encode('utf-8', 'replace')
                     path = '/'.join([_name_utf8] + file['path.utf-8'])
-                    if charset and (charset != 'utf-8'):
-                        path = path.decode('utf-8', 'replace').encode(charset, 'replace')
+                    if default_encoding != 'utf-8':
+                        path = path.decode('utf-8', 'replace').encode(default_encoding, 'replace')
             else:
                 if name_utf8:
                     path = file['path']
                     if encoding and (encoding != 'utf-8'):
                         path = path.decode(encoding, 'replace').encode('utf-8', 'replace')
                     path = '/'.join([name_utf8] + path)
-                    if charset and (charset != 'utf-8'):
-                        path = path.decode('utf-8', 'replace').encode(charset, 'replace')
+                    if default_encoding != 'utf-8':
+                        path = path.decode('utf-8', 'replace').encode(default_encoding, 'replace')
                 else:
                     path = '/'.join([name] + file['path'])
-                    if charset and encoding and (charset != encoding):
-                        path = path.decode(encoding, 'replace').encode(charset, 'replace')
+                    if encoding and (default_encoding != encoding):
+                        path = path.decode(encoding, 'replace').encode(default_encoding, 'replace')
             length = file['length']
             paths.append((path, length))
     else: # One-file torrent
@@ -115,10 +139,10 @@ def mctorrent_list():
             torrent_error('Unknown length')
         length = info['length']
         if name_utf8:
-            if charset and (charset != 'utf-8'):
-                name = name_utf8.decode('utf-8', 'replace').encode(charset, 'replace')
-        elif charset and encoding and (charset != encoding):
-            name = name.decode(encoding, 'replace').encode(charset, 'replace')
+            if default_encoding != 'utf-8':
+                name = name_utf8.decode('utf-8', 'replace').encode(default_encoding, 'replace')
+        elif encoding and (default_encoding != encoding):
+            name = name.decode(encoding, 'replace').encode(default_encoding, 'replace')
         paths = [(name, length)]
 
     meta = []
@@ -126,7 +150,7 @@ def mctorrent_list():
                 'created by', 'creation date', 'encoding', \
                 'nodes', 'publisher', 'publisher-url':
         if name == 'comment' and 'comment.utf-8' in torrent:
-            data = torrent['comment.utf-8'].decode('utf-8').encode(charset, 'replace')
+            data = torrent['comment.utf-8'].decode('utf-8').encode(default_encoding, 'replace')
             meta.append(('.META/' + name, len(data)))
         elif name in torrent:
             if name == 'announce-list':
@@ -163,7 +187,7 @@ def mctorrent_copyout():
                 'created by', 'creation date', 'encoding', \
                 'nodes', 'publisher', 'publisher-url':
         if name == 'comment' and 'comment.utf-8' in torrent:
-            data = torrent['comment.utf-8'].decode('utf-8').encode(charset, 'replace')
+            data = torrent['comment.utf-8'].decode('utf-8').encode(default_encoding, 'replace')
             meta.append(('.META/' + name, len(data)))
         elif torrent_filename == '.META/' + name:
             if name in torrent:
