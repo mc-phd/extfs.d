@@ -8,10 +8,10 @@ undocumented "run"; anyway there are no runnable files in cell phones. The
 script is written in Python because I I need to parse XML directory listings
 from obexftp, and Python is the best of all languages suited for the task ;).
 
-The script requires Midnight Commander 3.1+ (http://www.ibiblio.org/mc/),
-Python 2.3+ (http://www.python.org/),
-OpenOBEX 1.0.1+ (http://dev.zuckschwerdt.org/openobex/) and
-ObexFTP 0.10.4+ (http://triq.net/obexftp).
+The script requires Midnight Commander 3.1+
+(http://www.midnight-commander.org/), Python 2.3+ (http://www.python.org/),
+OpenOBEX 1.0.1+ (http://dev.zuckschwerdt.org/openobex/) and ObexFTP 0.10.4+
+(http://triq.net/obexftp).
 
 Edit the script, and correct the the full path to the obexftp binary (see
 obexftp_prog below). For mc 4.7+ put the script in $HOME/.mc/extfs.d.
