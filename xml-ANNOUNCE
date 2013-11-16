@@ -24,6 +24,11 @@ values are reencoded to the console encoding. Text nodes and comments are
 collected in a file named "text", stripped and reencoded. The filesystem is
 read-only.
 
+It is useful to have a top-down view on an XML structure but it's especially
+convenient to extract text values from tags. One can get, for example, a
+base64-encoded image - just walk down the VFS to the tag's directory and copy
+its text file to a real file.
+
 The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 
 
