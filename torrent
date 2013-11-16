@@ -10,11 +10,12 @@ For older versions put it in /usr/[local/][lib|share]/mc/extfs
 and add a line "torrent" to the /usr/[local/][lib|share]/mc/extfs/extfs.ini.
 Make the script executable.
 
-Run this "cd" command in the Midnight Commander (in the "bindings" file the
-command is "%cd"): cd file#torrent, where "file" is the name of your torrent
-metafile. The VFS lists all files and directories from the torrent metafile;
-all files appear empty, of course, but the sizes are shown. Filenames are
-reencoded from the metafile's encoding/codepage to the current locale.
+For mc 4.7+ run this "cd" command in the Midnight Commander (in the "bindings"
+file the command is "%cd"): cd file/torrent://; In older versions it is
+cd file#torrent, where "file" is the name of your torrent metafile. The VFS
+lists all files and directories from the torrent metafile; all files appear
+empty, of course, but the sizes are shown. Filenames are reencoded from the
+metafile's encoding/codepage to the current locale.
 
 Along with the files/directories in the torrent metafile the VFS also presents
 meta information - in the form of files in .META directory. The size and

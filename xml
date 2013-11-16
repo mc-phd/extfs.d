@@ -9,17 +9,18 @@ For older versions put it in /usr/[local/][lib|share]/mc/extfs
 and add a line "xml" to the /usr/[local/][lib|share]/mc/extfs/extfs.ini.
 Make the script executable.
 
-Run this "cd" command in the Midnight Commander (in the "bindings" file the
-command is "%cd"): cd file.xml#xml, where "file.xml" is the name of your xml
-file.
+For mc 4.7+ run this "cd" command in the Midnight Commander (in the "bindings"
+file the command is "%cd"): cd file/xml://; In older versions it is
+cd file#xml, where "file" is the name of your XML file.
 
 The VFS represents tags as directories; the directories are numbered to
 distinguish tags with the same name; also numbering helps to sort tags by their
 order in XML instead of sorting them by name. Attributes, text nodes and
 comments are represented as text files; attributes are shown in a file named
 "attributes", attributes are listed in the file as name=value lines (I
-deliberately ignore a small chance there is a newline character in values). The
-filesystem is read-only.
+deliberately ignore a small chance there is a newline character in values).
+Text nodes and comments are collected in a file named "text". The filesystem is
+read-only.
 
 The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 
