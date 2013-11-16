@@ -4,7 +4,7 @@
 The script requires Midnight Commander 3.1+
 (http://www.midnight-commander.org/), Python 2.4+ (http://www.python.org/).
 
-For mc 4.7+ put the script in $HOME/.mc/extfs.d.
+For mc 4.7+ put the script in $HOME/[.local/share/].mc/extfs.d.
 For older versions put it in /usr/[local/][lib|share]/mc/extfs
 and add a line "xml" to the /usr/[local/][lib|share]/mc/extfs/extfs.ini.
 Make the script executable.
@@ -78,7 +78,7 @@ XML Virtual FileSystem for Midnight Commander version %s
 Author: %s
 %s
 
-This is not a program. Put the script in $HOME/.mc/extfs.d or
+This is not a program. Put the script in $HOME/[.local/share/].mc/extfs.d or
 /usr/[local/][lib|share]/mc/extfs. For more information read the source!""",
    __version__, __author__, __copyright__
 )
