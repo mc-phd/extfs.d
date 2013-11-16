@@ -1,0 +1,37 @@
+XML Virtual FileSystem for Midnight Commander
+
+
+WHAT IS IT
+   View an XML file in Midnight Commander as a filesystem.
+
+
+WHAT'S NEW in version 0.3.0 (2013-11-16)
+   Initial release.
+
+
+WHERE TO GET
+   Master site:  http://phdru.name/Software/mc/
+   A mirror:    http://phdru.cu.cc/Software/mc/
+
+
+The VFS represents tags as directories; the directories are numbered to
+distinguish tags with the same name; also numbering helps to sort tags by their
+order in XML instead of sorting them by name. Attributes, text nodes and
+comments are represented as text files; attributes are shown in a file named
+"attributes", attributes are listed in the file as name=value lines (I
+deliberately ignore a small chance of newline characters in values); names and
+values are reencoded to the console encoding. Text nodes and comments are
+collected in a file named "text", stripped and reencoded. The filesystem is
+read-only.
+
+The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
+
+
+AUTHOR
+   Oleg Broytman <phd@phdru.name>
+
+COPYRIGHT
+   Copyright (C) 2013 PhiloSoft Design
+
+LICENSE
+   GPL
