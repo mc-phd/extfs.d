@@ -14,14 +14,18 @@ command is "%cd"): cd file.xml#xml, where "file.xml" is the name of your xml
 file.
 
 The VFS represents tags as directories; the directories are numbered to
-distinguish tags with the same name. Attributes, text nodes and comments are
-represented as files. The filesystem is read-only.
+distinguish tags with the same name; also numbering helps to sort tags by their
+order in XML instead of sorting them by name. Attributes, text nodes and
+comments are represented as text files; attributes are shown in a file named
+"attributes", attributes are listed in the file as name=value lines (I
+deliberately ignore a small chance there is a newline character in values). The
+filesystem is read-only.
 
 The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2013 PhiloSoft Design"
 __license__ = "GPL"
@@ -73,8 +77,15 @@ This is not a program. Put the script in $HOME/.mc/extfs.d or
 )
     sys.exit(1)
 
+
 locale.setlocale(locale.LC_ALL, '')
 
+def _attrs2text(attrs):
+    attrs = [attrs.item(i) for i in range (attrs.length)]
+    return '\n'.join(["%s=%s" %
+        (a.name.encode(default_encoding, "replace"),
+        a.value.encode(default_encoding, "replace"))
+        for a in attrs])
 
 def _list(node, path=''):
     childNodes = node.childNodes
@@ -97,6 +108,11 @@ def _list(node, path=''):
                 subpath = '%s %s' % (template % n, element.localName)
             subpath_encoded = subpath.encode(default_encoding, "replace")
             print "dr--r--r-- 1 user group 0 Jan 1 00:00 %s" % subpath_encoded
+            attrs = element.attributes
+            if attrs:
+                attr_text = _attrs2text(attrs)
+                print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/attributes" % (
+                    len(attr_text), subpath_encoded)
             _list(element, subpath)
 
 def mcxml_list():
@@ -106,8 +122,41 @@ def mcxml_list():
     _list(dom)
 
 
+def _get_child_node(node, i):
+    n = 0
+    for element in node.childNodes:
+        if element.localName:
+            n += 1
+            if n == i:
+                return element
+    xml_error('There are less than %d nodes' % i)
+
 def mcxml_copyout():
     """Extract a file from the VFS"""
+
+    node = xml.dom.minidom.parse(sys.argv[2])
+    xml_filename = sys.argv[3]
+    real_filename = sys.argv[4]
+
+    for path_comp in xml_filename.split('/'):
+        if ' ' in path_comp:
+            i = int(path_comp.split(' ', 1)[0])
+            node = _get_child_node(node, i)
+        elif path_comp == 'attributes':
+            break
+        else:
+            xml_error('Unknown file')
+
+    if path_comp == 'attributes':
+        attrs = node.attributes
+        if attrs:
+            text = _attrs2text(attrs)
+        else:
+            xml_error('There are no attributes')
+
+    outfile = open(real_filename, 'w')
+    outfile.write(text)
+    outfile.close()
 
 
 def mcxml_copyin():
@@ -124,6 +173,10 @@ def mcxml_mkdir():
     """Create a directory in the VFS"""
     sys.exit("XML VFS doesn't support creating directories (read-only filesystem)")
 
+
+def xml_error(error_str):
+    logger.critical("Error walking XML file: %s", error_str)
+    sys.exit(1)
 
 command = sys.argv[1]
 procname = "mcxml_" + command
