@@ -32,7 +32,7 @@ The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 
 """
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2013 PhiloSoft Design"
 __license__ = "GPL"
@@ -128,7 +128,7 @@ def _list(node, path=''):
             else:
                 subpath = '%s %s' % (template % n, element.localName)
             subpath_encoded = subpath.encode(default_encoding, "replace")
-            print "dr--r--r-- 1 user group 0 Jan 1 00:00 %s" % subpath_encoded
+            print "dr-xr-xr-x 1 user group 0 Jan 1 00:00 %s" % subpath_encoded
             attrs = element.attributes
             if attrs:
                 attr_text = _attrs2text(attrs)
