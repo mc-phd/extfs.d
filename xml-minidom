@@ -32,7 +32,7 @@ The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 
 """
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2013 PhiloSoft Design"
 __license__ = "GPL"
@@ -134,12 +134,11 @@ def _list(node, path=''):
                 attr_text = _attrs2text(attrs)
                 print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/attributes" % (
                     len(attr_text), subpath_encoded)
+            text = _collect_text(element)
+            if text:
+                print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/text" % (
+                    len(text), subpath_encoded)
             _list(element, subpath)
-    if path:
-        text = _collect_text(node)
-        if text:
-            print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/text" % (
-                len(text), path.encode(default_encoding, "replace"))
 
 def mcxml_list():
     """List the entire VFS"""

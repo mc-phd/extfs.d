@@ -5,6 +5,9 @@ WHAT IS IT
    View an XML file in Midnight Commander as a filesystem.
 
 
+WHAT'S NEW in version 0.3.2 (2013-11-19)
+   Refactored collection of text and comments nodes.
+
 WHAT'S NEW in version 0.3.1 (2013-11-18)
    Fixed a bug in directories permissions.
 
