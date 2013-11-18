@@ -1,0 +1,223 @@
+#! /usr/bin/env python
+"""XML Virtual FileSystem for Midnight Commander
+
+The script requires Midnight Commander 3.1+
+(http://www.midnight-commander.org/), Python 2.4+ (http://www.python.org/).
+
+For mc 4.7+ put the script in $HOME/[.local/share/].mc/extfs.d.
+For older versions put it in /usr/[local/][lib|share]/mc/extfs
+and add a line "xml" to the /usr/[local/][lib|share]/mc/extfs/extfs.ini.
+Make the script executable.
+
+For mc 4.7+ run this "cd" command in the Midnight Commander (in the "bindings"
+file the command is "%cd"): cd file/xml://; In older versions it is
+cd file#xml, where "file" is the name of your XML file.
+
+The VFS represents tags as directories; the directories are numbered to
+distinguish tags with the same name; also numbering helps to sort tags by their
+order in XML instead of sorting them by name. Attributes, text nodes and
+comments are represented as text files; attributes are shown in a file named
+"attributes", attributes are listed in the file as name=value lines (I
+deliberately ignore a small chance of newline characters in values); names and
+values are reencoded to the console encoding. Text nodes and comments are
+collected in a file named "text", stripped and reencoded. The filesystem is
+read-only.
+
+It is useful to have a top-down view on an XML structure but it's especially
+convenient to extract text values from tags. One can get, for example, a
+base64-encoded image - just walk down the VFS to the tag's directory and copy
+its text file to a real file.
+
+The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
+
+"""
+
+__version__ = "0.3.0"
+__author__ = "Oleg Broytman <phd@phdru.name>"
+__copyright__ = "Copyright (C) 2013 PhiloSoft Design"
+__license__ = "GPL"
+
+import math
+import sys
+import xml.dom.minidom
+
+try:
+   import locale
+   use_locale = True
+except ImportError:
+   use_locale = False
+
+if use_locale:
+   # Get the default charset.
+   try:
+      lcAll = locale.getdefaultlocale()
+   except locale.Error, err:
+      print >>sys.stderr, "WARNING:", err
+      lcAll = []
+
+   if len(lcAll) == 2:
+      default_encoding = lcAll[1]
+   else:
+      try:
+         default_encoding = locale.getpreferredencoding()
+      except locale.Error, err:
+         print >>sys.stderr, "WARNING:", err
+         default_encoding = sys.getdefaultencoding()
+else:
+   default_encoding = sys.getdefaultencoding()
+
+import logging
+logger = logging.getLogger('xml-mcextfs')
+log_err_handler = logging.StreamHandler(sys.stderr)
+logger.addHandler(log_err_handler)
+logger.setLevel(logging.INFO)
+
+if len(sys.argv) < 3:
+    logger.critical("""\
+XML Virtual FileSystem for Midnight Commander version %s
+Author: %s
+%s
+
+This is not a program. Put the script in $HOME/[.local/share/].mc/extfs.d or
+/usr/[local/][lib|share]/mc/extfs. For more information read the source!""",
+   __version__, __author__, __copyright__
+)
+    sys.exit(1)
+
+
+locale.setlocale(locale.LC_ALL, '')
+
+def _attrs2text(attrs):
+    attrs = [attrs.item(i) for i in range (attrs.length)]
+    return '\n'.join(["%s=%s" %
+        (a.name.encode(default_encoding, "replace"),
+        a.value.encode(default_encoding, "replace"))
+        for a in attrs])
+
+def _collect_text(node):
+    text_accumulator = []
+    for element in node.childNodes:
+        if element.localName:
+            continue
+        elif element.nodeType == element.COMMENT_NODE:
+            text = u"<!--%s-->" % element.nodeValue
+        elif element.nodeType == element.TEXT_NODE:
+            text = element.nodeValue.strip()
+        else:
+            xml_error("Unknown node type %d" % element.nodeType)
+        if text: text_accumulator.append(text)
+    return '\n'.join(text_accumulator).encode(default_encoding, "replace")
+
+def _list(node, path=''):
+    childNodes = node.childNodes
+    n = 0
+    for element in childNodes:
+        if element.localName:
+            n += 1
+    if n:
+        width = int(math.log10(n))+1
+        template = "%%0%dd" % width
+    else:
+        template = "%d"
+    n = 0
+    for element in childNodes:
+        if element.localName:
+            n += 1
+            if path:
+                subpath = '%s/%s %s' % (path, template % n, element.localName)
+            else:
+                subpath = '%s %s' % (template % n, element.localName)
+            subpath_encoded = subpath.encode(default_encoding, "replace")
+            print "dr--r--r-- 1 user group 0 Jan 1 00:00 %s" % subpath_encoded
+            attrs = element.attributes
+            if attrs:
+                attr_text = _attrs2text(attrs)
+                print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/attributes" % (
+                    len(attr_text), subpath_encoded)
+            _list(element, subpath)
+    if path:
+        text = _collect_text(node)
+        if text:
+            print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/text" % (
+                len(text), path.encode(default_encoding, "replace"))
+
+def mcxml_list():
+    """List the entire VFS"""
+
+    dom = xml.dom.minidom.parse(sys.argv[2])
+    _list(dom)
+
+
+def _get_child_node(node, i):
+    n = 0
+    for element in node.childNodes:
+        if element.localName:
+            n += 1
+            if n == i:
+                return element
+    xml_error('There are less than %d nodes' % i)
+
+def mcxml_copyout():
+    """Extract a file from the VFS"""
+
+    node = xml.dom.minidom.parse(sys.argv[2])
+    xml_filename = sys.argv[3]
+    real_filename = sys.argv[4]
+
+    for path_comp in xml_filename.split('/'):
+        if ' ' in path_comp:
+            i = int(path_comp.split(' ', 1)[0])
+            node = _get_child_node(node, i)
+        elif path_comp in ('attributes', 'text'):
+            break
+        else:
+            xml_error('Unknown file')
+
+    if path_comp == 'attributes':
+        attrs = node.attributes
+        if attrs:
+            text = _attrs2text(attrs)
+        else:
+            xml_error('There are no attributes')
+
+    if path_comp == 'text':
+        text = _collect_text(node)
+
+    outfile = open(real_filename, 'w')
+    outfile.write(text)
+    outfile.close()
+
+
+def mcxml_copyin():
+    """Put a file to the VFS"""
+    sys.exit("XML VFS doesn't support adding files (read-only filesystem)")
+
+def mcxml_rm():
+    """Remove a file from the VFS"""
+    sys.exit("XML VFS doesn't support removing files/directories (read-only filesystem)")
+
+mcxml_rmdir = mcxml_rm
+
+def mcxml_mkdir():
+    """Create a directory in the VFS"""
+    sys.exit("XML VFS doesn't support creating directories (read-only filesystem)")
+
+
+def xml_error(error_str):
+    logger.critical("Error walking XML file: %s", error_str)
+    sys.exit(1)
+
+command = sys.argv[1]
+procname = "mcxml_" + command
+
+g = globals()
+if not g.has_key(procname):
+    logger.critical("Unknown command %s", command)
+    sys.exit(1)
+
+try:
+    g[procname]()
+except SystemExit:
+    raise
+except:
+    logger.exception("Error during run")
