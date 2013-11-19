@@ -21,8 +21,9 @@ comments are represented as text files; attributes are shown in a file named
 deliberately ignore a small chance of newline characters in values); names and
 values are reencoded to the console encoding. Text nodes and comments are
 collected in a file named "text", stripped and reencoded. The filesystem is
-read-only. ElementTree- and lxml.etree-based implementations don't show
-namespaces as attributes.
+read-only. ElementTree-based implementation doesn't show namespaces as
+attributes; lxml.etree-based implementation shows namespaces as a separate file
+"namespaces"; every child tag includes its parent's namespaces.
 
 It is useful to have a top-down view on an XML structure but it's especially
 convenient to extract text values from tags. One can get, for example, a
@@ -116,6 +117,9 @@ class XmlVfs(object):
 
     def list(self):
         self._list(self.getroot())
+
+    def has_ns(self, node):
+        return False
 
     def get_child_node(self, node, i):
         n = 0
@@ -311,6 +315,17 @@ if use_lxml:
                 attr_accumulator.append("%s=%s" % (name, value))
             return '\n'.join(attr_accumulator)
 
+        def has_ns(self, node):
+            return bool(node.nsmap)
+
+        def ns2text(self, node):
+            ns_accumulator = []
+            for name, value in node.nsmap.items():
+                name = name.encode(default_encoding, "replace")
+                value = value.encode(default_encoding, "replace")
+                ns_accumulator.append("%s=%s" % (name, value))
+            return '\n'.join(ns_accumulator)
+
         def list(self):
             self._list(self.getroot())
 
@@ -337,6 +352,10 @@ if use_lxml:
                     attr_text = self.attrs2text(element)
                     print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/attributes" % (
                         len(attr_text), subpath_encoded)
+                if element.nsmap:
+                    ns_text = self.ns2text(element)
+                    print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/namespaces" % (
+                        len(ns_text), subpath_encoded)
                 text = self.collect_text(element)
                 if text:
                     print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/text" % (
@@ -382,7 +401,7 @@ def mcxml_copyout():
         if ' ' in path_comp:
             i = int(path_comp.split(' ', 1)[0])
             node = xmlvfs.get_child_node(node, i)
-        elif path_comp in ('attributes', 'text'):
+        elif path_comp in ('attributes', 'namespaces', 'text'):
             break
         else:
             xml_error('Unknown file')
@@ -393,8 +412,17 @@ def mcxml_copyout():
         else:
             xml_error('There are no attributes')
 
-    if path_comp == 'text':
+    elif path_comp == 'namespaces':
+        if xmlvfs.has_ns(node):
+            text = xmlvfs.ns2text(node)
+        else:
+            xml_error('There are no attributes')
+
+    elif path_comp == 'text':
         text = xmlvfs.collect_text(node)
+
+    else:
+        xml_error('Unknown file')
 
     outfile = open(real_filename, 'w')
     outfile.write(text)
