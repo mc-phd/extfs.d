@@ -32,14 +32,26 @@ The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 
 """
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2013 PhiloSoft Design"
 __license__ = "GPL"
 
+default_implementation = None # Can be elementtree or minidom
+
+use_minidom = True
+use_elementtree = False
+
 import math
 import sys
 import xml.dom.minidom
+
+try:
+    import xml.etree.ElementTree as ET
+except ImportError:
+    pass
+else:
+    use_elementtree = True
 
 try:
    import locale
@@ -87,11 +99,25 @@ This is not a program. Put the script in $HOME/[.local/share/].mc/extfs.d or
 
 locale.setlocale(locale.LC_ALL, '')
 
+
 class XmlVfs(object):
     def __init__(self):
         self.parse()
 
-class MiniDOM(XmlVfs):
+    def list(self):
+        self._list(self.getroot())
+
+    def get_child_node(self, node, i):
+        n = 0
+        for element in self.getchildren(node):
+            if self.istag(element):
+                n += 1
+                if n == i:
+                    return element
+        xml_error('There are less than %d nodes' % i)
+
+
+class MiniDOMXmlVfs(XmlVfs):
     def parse(self):
         self.document = xml.dom.minidom.parse(sys.argv[2])
 
@@ -119,9 +145,6 @@ class MiniDOM(XmlVfs):
                 xml_error("Unknown node type %d" % element.nodeType)
             if text: text_accumulator.append(text)
         return '\n'.join(text_accumulator).encode(default_encoding, "replace")
-
-    def list(self):
-        self._list(self.document)
 
     def _list(self, node, path=''):
         childNodes = node.childNodes
@@ -157,27 +180,134 @@ class MiniDOM(XmlVfs):
     def getroot(self):
         return self.document
 
-    def get_child_node(self, node, i):
-        n = 0
-        for element in node.childNodes:
-            if element.localName:
+    def getchildren(self, node):
+        return node.childNodes
+
+    def istag(self, node):
+        return bool(node.localName)
+
+
+if use_elementtree:
+    class ElementTreeXmlVfs(XmlVfs):
+        def parse(self):
+            # Copied from http://effbot.org/zone/element-pi.ht
+
+            class PIParser(ET.XMLTreeBuilder):
+
+               def __init__(self):
+                   ET.XMLTreeBuilder.__init__(self)
+                   # assumes ElementTree 1.2.X
+                   self._parser.CommentHandler = self.handle_comment
+                   self._parser.ProcessingInstructionHandler = self.handle_pi
+                   self._target.start("document", {})
+
+               def close(self):
+                   self._target.end("document")
+                   return ET.XMLTreeBuilder.close(self)
+
+               def handle_comment(self, data):
+                   self._target.start(ET.Comment, {})
+                   self._target.data(data)
+                   self._target.end(ET.Comment)
+
+               def handle_pi(self, target, data):
+                   self._target.start(ET.PI, {})
+                   self._target.data(target + " " + data)
+                   self._target.end(ET.PI)
+
+            self.document = ET.parse(sys.argv[2], PIParser())
+
+        def hasattrs(self, node):
+            return bool(node.attrib)
+
+        def attrs2text(self, node):
+            attr_accumulator = []
+            for name, value in node.attrib.items():
+                name = name.encode(default_encoding, "replace")
+                value = value.encode(default_encoding, "replace")
+                if name.startswith('{'):
+                    name = name.split('}', 1)[1] # Remove XML namespace
+                attr_accumulator.append("%s=%s" % (name, value))
+            return '\n'.join(attr_accumulator)
+
+        def collect_text(self, node):
+            text_accumulator = []
+            if node.text:
+                text = node.text.strip()
+                if text: text_accumulator.append(text)
+            for element in node:
+                if element.tag is ET.Comment:
+                    text = u"<!--%s-->" % text
+                    text_accumulator.append(text)
+            if node.tail:
+                text = node.tail.strip()
+                if text: text_accumulator.append(text)
+            return '\n'.join(text_accumulator).encode(default_encoding, "replace")
+
+        def _list(self, node, path=''):
+            n = len(node)
+            if n:
+                width = int(math.log10(n))+1
+                template = "%%0%dd" % width
+            else:
+                template = "%d"
+            n = 0
+            for element in node:
+                if not isinstance(element.tag, basestring):
+                    continue
                 n += 1
-                if n == i:
-                    return element
-        xml_error('There are less than %d nodes' % i)
+                tag = element.tag
+                if tag.startswith('{'):
+                    tag = tag.split('}', 1)[1] # Remove XML namespace
+                if path:
+                    subpath = '%s/%s %s' % (path, template % n, tag)
+                else:
+                    subpath = '%s %s' % (template % n, tag)
+                subpath_encoded = subpath.encode(default_encoding, "replace")
+                print "dr-xr-xr-x 1 user group 0 Jan 1 00:00 %s" % subpath_encoded
+                if self.hasattrs(element):
+                    attr_text = self.attrs2text(element)
+                    print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/attributes" % (
+                        len(attr_text), subpath_encoded)
+                text = self.collect_text(element)
+                if text:
+                    print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/text" % (
+                        len(text), subpath_encoded)
+                self._list(element, subpath)
+
+        def getroot(self):
+            return self.document.getroot()
+
+        def getchildren(self, node):
+            return list(node)
+
+        def istag(self, node):
+            return isinstance(node.tag, basestring)
+
+
+def build_xmlvfs():
+    if default_implementation is None:
+        if use_elementtree:
+            return ElementTreeXmlVfs()
+        else:
+            return MiniDOMXmlVfs()
+    elif default_implementation == 'minidom':
+        return MiniDOMXmlVfs()
+    elif default_implementation == 'elementtree':
+        return ElementTreeXmlVfs()
 
 
 def mcxml_list():
     """List the entire VFS"""
 
-    xmlvfs = MiniDOM()
+    xmlvfs = build_xmlvfs()
     xmlvfs.list()
 
 
 def mcxml_copyout():
     """Extract a file from the VFS"""
 
-    xmlvfs = MiniDOM()
+    xmlvfs = build_xmlvfs()
     xml_filename = sys.argv[3]
     real_filename = sys.argv[4]
 
