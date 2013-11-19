@@ -5,11 +5,11 @@ WHAT IS IT
    View an XML file in Midnight Commander as a filesystem.
 
 
-WHAT'S NEW in version 0.3.2 (2013-11-19)
-   Refactored collection of text and comments nodes.
+WHAT'S NEW in version 0.5.0 (2013-11-19)
+   Added lxml.etree-based implementation.
 
-WHAT'S NEW in version 0.3.1 (2013-11-18)
-   Fixed a bug in directories permissions.
+WHAT'S NEW in version 0.4.0 (2013-11-19)
+   Added ElementTree-based implementation.
 
 WHAT'S NEW in version 0.3.0 (2013-11-16)
    Initial release.
