@@ -5,7 +5,7 @@ The script requires Midnight Commander 3.1+
 (http://www.midnight-commander.org/), Python 2.4+ (http://www.python.org/),
 module eff_bdecode.py (http://effbot.org/zone/bencode.htm).
 
-For mc 4.7+ put the script in $HOME/[.local/share/].mc/extfs.d.
+For mc 4.7+ just put the script in $HOME/[.local/share/].mc/extfs.d.
 For older versions put it in /usr/[local/][lib|share]/mc/extfs
 and add a line "torrent" to the /usr/[local/][lib|share]/mc/extfs/extfs.ini.
 Make the script executable.
