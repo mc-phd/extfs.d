@@ -32,7 +32,7 @@ The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 
 """
 
-__version__ = "0.3.2"
+__version__ = "0.4.0"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2013 PhiloSoft Design"
 __license__ = "GPL"
@@ -87,100 +87,118 @@ This is not a program. Put the script in $HOME/[.local/share/].mc/extfs.d or
 
 locale.setlocale(locale.LC_ALL, '')
 
-def _attrs2text(attrs):
-    attrs = [attrs.item(i) for i in range (attrs.length)]
-    return '\n'.join(["%s=%s" %
-        (a.name.encode(default_encoding, "replace"),
-        a.value.encode(default_encoding, "replace"))
-        for a in attrs])
+class XmlVfs(object):
+    def __init__(self):
+        self.parse()
 
-def _collect_text(node):
-    text_accumulator = []
-    for element in node.childNodes:
-        if element.localName:
-            continue
-        elif element.nodeType == element.COMMENT_NODE:
-            text = u"<!--%s-->" % element.nodeValue
-        elif element.nodeType == element.TEXT_NODE:
-            text = element.nodeValue.strip()
-        else:
-            xml_error("Unknown node type %d" % element.nodeType)
-        if text: text_accumulator.append(text)
-    return '\n'.join(text_accumulator).encode(default_encoding, "replace")
+class MiniDOM(XmlVfs):
+    def parse(self):
+        self.document = xml.dom.minidom.parse(sys.argv[2])
 
-def _list(node, path=''):
-    childNodes = node.childNodes
-    n = 0
-    for element in childNodes:
-        if element.localName:
-            n += 1
-    if n:
-        width = int(math.log10(n))+1
-        template = "%%0%dd" % width
-    else:
-        template = "%d"
-    n = 0
-    for element in childNodes:
-        if element.localName:
-            n += 1
-            if path:
-                subpath = '%s/%s %s' % (path, template % n, element.localName)
+    def hasattrs(self, node):
+        return bool(node.attributes)
+
+    def attrs2text(self, node):
+        attrs = node.attributes
+        attrs = [attrs.item(i) for i in range (attrs.length)]
+        return '\n'.join(["%s=%s" %
+            (a.name.encode(default_encoding, "replace"),
+            a.value.encode(default_encoding, "replace"))
+            for a in attrs])
+
+    def collect_text(self, node):
+        text_accumulator = []
+        for element in node.childNodes:
+            if element.localName:
+                continue
+            elif element.nodeType == element.COMMENT_NODE:
+                text = u"<!--%s-->" % element.nodeValue
+            elif element.nodeType == element.TEXT_NODE:
+                text = element.nodeValue.strip()
             else:
-                subpath = '%s %s' % (template % n, element.localName)
-            subpath_encoded = subpath.encode(default_encoding, "replace")
-            print "dr-xr-xr-x 1 user group 0 Jan 1 00:00 %s" % subpath_encoded
-            attrs = element.attributes
-            if attrs:
-                attr_text = _attrs2text(attrs)
-                print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/attributes" % (
-                    len(attr_text), subpath_encoded)
-            text = _collect_text(element)
-            if text:
-                print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/text" % (
-                    len(text), subpath_encoded)
-            _list(element, subpath)
+                xml_error("Unknown node type %d" % element.nodeType)
+            if text: text_accumulator.append(text)
+        return '\n'.join(text_accumulator).encode(default_encoding, "replace")
+
+    def list(self):
+        self._list(self.document)
+
+    def _list(self, node, path=''):
+        childNodes = node.childNodes
+        n = 0
+        for element in childNodes:
+            if element.localName:
+                n += 1
+        if n:
+            width = int(math.log10(n))+1
+            template = "%%0%dd" % width
+        else:
+            template = "%d"
+        n = 0
+        for element in childNodes:
+            if element.localName:
+                n += 1
+                if path:
+                    subpath = '%s/%s %s' % (path, template % n, element.localName)
+                else:
+                    subpath = '%s %s' % (template % n, element.localName)
+                subpath_encoded = subpath.encode(default_encoding, "replace")
+                print "dr-xr-xr-x 1 user group 0 Jan 1 00:00 %s" % subpath_encoded
+                if self.hasattrs(element):
+                    attr_text = self.attrs2text(element)
+                    print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/attributes" % (
+                        len(attr_text), subpath_encoded)
+                text = self.collect_text(element)
+                if text:
+                    print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/text" % (
+                        len(text), subpath_encoded)
+                self._list(element, subpath)
+
+    def getroot(self):
+        return self.document
+
+    def get_child_node(self, node, i):
+        n = 0
+        for element in node.childNodes:
+            if element.localName:
+                n += 1
+                if n == i:
+                    return element
+        xml_error('There are less than %d nodes' % i)
+
 
 def mcxml_list():
     """List the entire VFS"""
 
-    dom = xml.dom.minidom.parse(sys.argv[2])
-    _list(dom)
+    xmlvfs = MiniDOM()
+    xmlvfs.list()
 
-
-def _get_child_node(node, i):
-    n = 0
-    for element in node.childNodes:
-        if element.localName:
-            n += 1
-            if n == i:
-                return element
-    xml_error('There are less than %d nodes' % i)
 
 def mcxml_copyout():
     """Extract a file from the VFS"""
 
-    node = xml.dom.minidom.parse(sys.argv[2])
+    xmlvfs = MiniDOM()
     xml_filename = sys.argv[3]
     real_filename = sys.argv[4]
 
+    node = xmlvfs.getroot()
     for path_comp in xml_filename.split('/'):
         if ' ' in path_comp:
             i = int(path_comp.split(' ', 1)[0])
-            node = _get_child_node(node, i)
+            node = xmlvfs.get_child_node(node, i)
         elif path_comp in ('attributes', 'text'):
             break
         else:
             xml_error('Unknown file')
 
     if path_comp == 'attributes':
-        attrs = node.attributes
-        if attrs:
-            text = _attrs2text(attrs)
+        if xmlvfs.hasattrs(node):
+            text = xmlvfs.attrs2text(node)
         else:
             xml_error('There are no attributes')
 
     if path_comp == 'text':
-        text = _collect_text(node)
+        text = xmlvfs.collect_text(node)
 
     outfile = open(real_filename, 'w')
     outfile.write(text)
