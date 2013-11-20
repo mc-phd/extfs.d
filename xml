@@ -42,8 +42,8 @@ __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2013 PhiloSoft Design"
 __license__ = "GPL"
 
-default_implementation = None # Can be None for default choice,
-                              # 'lxml', 'elementtree' or 'minidom'
+default_implementation = None  # Can be None for default choice,
+                               # 'lxml', 'elementtree' or 'minidom'
 
 use_minidom = True
 use_elementtree = False
@@ -143,7 +143,7 @@ class MiniDOMXmlVfs(XmlVfs):
 
     def attrs2text(self, node):
         attrs = node.attributes
-        attrs = [attrs.item(i) for i in range (attrs.length)]
+        attrs = [attrs.item(i) for i in range(attrs.length)]
         return '\n'.join(["%s=%s" %
             (a.name.encode(default_encoding, "replace"),
             a.value.encode(default_encoding, "replace"))
@@ -170,7 +170,7 @@ class MiniDOMXmlVfs(XmlVfs):
             if element.localName:
                 n += 1
         if n:
-            width = int(math.log10(n))+1
+            width = int(math.log10(n)) + 1
             template = "%%0%dd" % width
         else:
             template = "%d"
@@ -240,26 +240,26 @@ if use_elementtree:
 
             class PIParser(ET.XMLTreeBuilder):
 
-               def __init__(self):
-                   ET.XMLTreeBuilder.__init__(self)
-                   # assumes ElementTree 1.2.X
-                   self._parser.CommentHandler = self.handle_comment
-                   self._parser.ProcessingInstructionHandler = self.handle_pi
-                   self._target.start("document", {})
+                def __init__(self):
+                    ET.XMLTreeBuilder.__init__(self)
+                    # assumes ElementTree 1.2.X
+                    self._parser.CommentHandler = self.handle_comment
+                    self._parser.ProcessingInstructionHandler = self.handle_pi
+                    self._target.start("document", {})
 
-               def close(self):
-                   self._target.end("document")
-                   return ET.XMLTreeBuilder.close(self)
+                def close(self):
+                    self._target.end("document")
+                    return ET.XMLTreeBuilder.close(self)
 
-               def handle_comment(self, data):
-                   self._target.start(ET.Comment, {})
-                   self._target.data(data)
-                   self._target.end(ET.Comment)
+                def handle_comment(self, data):
+                    self._target.start(ET.Comment, {})
+                    self._target.data(data)
+                    self._target.end(ET.Comment)
 
-               def handle_pi(self, target, data):
-                   self._target.start(ET.PI, {})
-                   self._target.data(target + " " + data)
-                   self._target.end(ET.PI)
+                def handle_pi(self, target, data):
+                    self._target.start(ET.PI, {})
+                    self._target.data(target + " " + data)
+                    self._target.end(ET.PI)
 
             self.document = ET.parse(sys.argv[2], PIParser())
 

@@ -28,13 +28,13 @@ year. The filesystem is, naturally, read-only.
 
 """
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2010-2013 PhiloSoft Design"
 __license__ = "GPL"
 
 
-import sys, os
+import sys
 from eff_bdecode import decode
 
 try:
@@ -135,7 +135,7 @@ def mctorrent_list():
                         path = path.decode(encoding, 'replace').encode(default_encoding, 'replace')
             length = file['length']
             paths.append((path, length))
-    else: # One-file torrent
+    else:  # One-file torrent
         if 'length' not in info:
             torrent_error('Unknown length')
         length = info['length']
@@ -189,7 +189,6 @@ def mctorrent_copyout():
                 'nodes', 'publisher', 'publisher-url':
         if name == 'comment' and 'comment.utf-8' in torrent:
             data = torrent['comment.utf-8'].decode('utf-8').encode(default_encoding, 'replace')
-            meta.append(('.META/' + name, len(data)))
         elif torrent_filename == '.META/' + name:
             if name in torrent:
                 if name == 'announce-list':
