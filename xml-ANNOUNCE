@@ -6,7 +6,7 @@ WHAT IS IT
 
 
 WHAT'S NEW in version 0.6.0 (2013-11-22)
-   Refactored _list() to be completely generic.
+   Refactored _list() and attrs2text() to be completely generic.
 
 WHAT'S NEW in version 0.5.0 (2013-11-19)
    Added lxml.etree-based implementation.

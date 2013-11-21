@@ -144,7 +144,7 @@ class XmlVfs(object):
                 subpath = '%s %s' % (template % n, tag)
             subpath_encoded = subpath.encode(default_encoding, "replace")
             print "dr-xr-xr-x 1 user group 0 Jan 1 00:00 %s" % subpath_encoded
-            if self.hasattrs(element):
+            if self.getattrs(element):
                 attr_text = self.attrs2text(element)
                 print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/attributes" % (
                     len(attr_text), subpath_encoded)
@@ -157,6 +157,14 @@ class XmlVfs(object):
                 print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/text" % (
                     len(text), subpath_encoded)
             self._list(element, subpath)
+
+    def attrs2text(self, node):
+        attr_accumulator = []
+        for name, value in self.getattrs(node):
+            name = self.getlocalname(name).encode(default_encoding, "replace")
+            value = value.encode(default_encoding, "replace")
+            attr_accumulator.append("%s=%s" % (name, value))
+        return '\n'.join(attr_accumulator)
 
     def has_ns(self, node):
         return False
@@ -175,16 +183,10 @@ class MiniDOMXmlVfs(XmlVfs):
     def parse(self):
         self.document = xml.dom.minidom.parse(sys.argv[2])
 
-    def hasattrs(self, node):
-        return bool(node.attributes)
-
-    def attrs2text(self, node):
+    def getattrs(self, node):
         attrs = node.attributes
         attrs = [attrs.item(i) for i in range(attrs.length)]
-        return '\n'.join(["%s=%s" %
-            (a.name.encode(default_encoding, "replace"),
-            a.value.encode(default_encoding, "replace"))
-            for a in attrs])
+        return [(a.name, a.value) for a in attrs]
 
     def collect_text(self, node):
         text_accumulator = []
@@ -218,8 +220,8 @@ class MiniDOMXmlVfs(XmlVfs):
 
 if use_elementtree or use_lxml:
     class CommonEtreeXmlVfs(XmlVfs):
-        def hasattrs(self, node):
-            return bool(node.attrib)
+        def getattrs(self, node):
+            return node.attrib.items()
 
         def collect_text(self, node):
             text_accumulator = []
@@ -278,16 +280,6 @@ if use_elementtree:
 
             self.document = ET.parse(sys.argv[2], PIParser())
 
-        def attrs2text(self, node):
-            attr_accumulator = []
-            for name, value in node.attrib.items():
-                name = name.encode(default_encoding, "replace")
-                value = value.encode(default_encoding, "replace")
-                if name.startswith('{'):
-                    name = name.split('}', 1)[1]  # Remove XML namespace
-                attr_accumulator.append("%s=%s" % (name, value))
-            return '\n'.join(attr_accumulator)
-
         def getlocalname(self, name):
             if name.startswith('{'):
                 name = name.split('}', 1)[1]  # Remove XML namespace
@@ -300,14 +292,6 @@ if use_lxml:
 
         def parse(self):
             self.document = etree.parse(sys.argv[2])
-
-        def attrs2text(self, node):
-            attr_accumulator = []
-            for name, value in node.attrib.items():
-                name = etree.QName(name).localname.encode(default_encoding, "replace")
-                value = value.encode(default_encoding, "replace")
-                attr_accumulator.append("%s=%s" % (name, value))
-            return '\n'.join(attr_accumulator)
 
         def has_ns(self, node):
             return bool(node.nsmap)
@@ -370,7 +354,7 @@ def mcxml_copyout():
             xml_error('Unknown file')
 
     if path_comp == 'attributes':
-        if xmlvfs.hasattrs(node):
+        if xmlvfs.getattrs(node):
             text = xmlvfs.attrs2text(node)
         else:
             xml_error('There are no attributes')
