@@ -158,6 +158,15 @@ class XmlVfs(object):
                     len(text), subpath_encoded)
             self._list(element, subpath)
 
+    def get_tag_node(self, node, i):
+        n = 0
+        for element in self.getchildren(node):
+            if self.istag(element):
+                n += 1
+                if n == i:
+                    return element
+        xml_error('There are less than %d nodes' % i)
+
     def attrs2text(self, node):
         attr_accumulator = []
         for name, value in self.getattrs(node):
@@ -168,15 +177,6 @@ class XmlVfs(object):
 
     def has_ns(self, node):
         return False
-
-    def get_child_node(self, node, i):
-        n = 0
-        for element in self.getchildren(node):
-            if self.istag(element):
-                n += 1
-                if n == i:
-                    return element
-        xml_error('There are less than %d nodes' % i)
 
 
 class MiniDOMXmlVfs(XmlVfs):
@@ -293,6 +293,12 @@ if use_lxml:
         def parse(self):
             self.document = etree.parse(sys.argv[2])
 
+        def getroot(self):
+            return [self.document.getroot()]
+
+        def getlocalname(self, name):
+            return etree.QName(name).localname
+
         def has_ns(self, node):
             return bool(node.nsmap)
 
@@ -303,12 +309,6 @@ if use_lxml:
                 value = value.encode(default_encoding, "replace")
                 ns_accumulator.append("%s=%s" % (name, value))
             return '\n'.join(ns_accumulator)
-
-        def getroot(self):
-            return [self.document.getroot()]
-
-        def getlocalname(self, name):
-            return etree.QName(name).localname
 
 
 def build_xmlvfs():
@@ -347,7 +347,7 @@ def mcxml_copyout():
     for path_comp in xml_filename.split('/'):
         if ' ' in path_comp:
             i = int(path_comp.split(' ', 1)[0])
-            node = xmlvfs.get_child_node(node, i)
+            node = xmlvfs.get_tag_node(node, i)
         elif path_comp in ('attributes', 'namespaces', 'text'):
             break
         else:
