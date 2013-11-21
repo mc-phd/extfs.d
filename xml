@@ -237,9 +237,6 @@ if use_elementtree or use_lxml:
                 if text: text_accumulator.append(text)
             return '\n'.join(text_accumulator).encode(default_encoding, "replace")
 
-        def getroot(self):
-            return self.document.getroot()
-
         def getchildren(self, node):
             return list(node)
 
@@ -279,6 +276,9 @@ if use_elementtree:
                     self._target.end(ET.PI)
 
             self.document = ET.parse(sys.argv[2], PIParser())
+
+        def getroot(self):
+            return self.document.getroot()
 
         def getlocalname(self, name):
             if name.startswith('{'):
