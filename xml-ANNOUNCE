@@ -5,6 +5,10 @@ WHAT IS IT
    View an XML file in Midnight Commander as a filesystem.
 
 
+WHAT'S NEW in version 0.6.1 (2013-11-22)
+   With lxml.etree-based implementation show only child namespaces
+   (calculated as combined namespaces minus parent's namespaces).
+
 WHAT'S NEW in version 0.6.0 (2013-11-22)
    Refactored _list() and attrs2text() to be completely generic.
 
@@ -15,7 +19,7 @@ WHAT'S NEW in version 0.4.0 (2013-11-19)
    Added ElementTree-based implementation.
 
 WHAT'S NEW in version 0.3.0 (2013-11-16)
-   Initial release.
+   Initial release. Implementation based on minidom.
 
 
 WHERE TO GET

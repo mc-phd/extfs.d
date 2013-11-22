@@ -26,7 +26,7 @@ read-only.
 Implementation based on minidom doesn't understand namespaces, it just shows
 them among other attributes. ElementTree-based implementation doesn't show
 namespaces at all. Implementation based on lxml.etree shows namespaces in a
-separate file "namespaces"; every child tag includes its parent's namespaces.
+separate file "namespaces".
 
 It is useful to have a top-down view on an XML structure but it's especially
 convenient to extract text values from tags. One can get, for example, a
@@ -37,7 +37,7 @@ The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 
 """
 
-__version__ = "0.6.0"
+__version__ = "0.6.1"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2013 PhiloSoft Design"
 __license__ = "GPL"
@@ -299,12 +299,21 @@ if use_lxml:
         def getlocalname(self, name):
             return etree.QName(name).localname
 
+        def _get_local_ns(self, node):
+            this_nsmap = node.nsmap
+            parent = node.getparent()
+            if parent is not None:
+                parents_nsmap = parent.nsmap
+                for key in parents_nsmap:
+                    del this_nsmap[key]
+            return this_nsmap
+
         def has_ns(self, node):
-            return bool(node.nsmap)
+            return bool(self._get_local_ns(node))
 
         def ns2text(self, node):
             ns_accumulator = []
-            for name, value in node.nsmap.items():
+            for name, value in self._get_local_ns(node).items():
                 name = name.encode(default_encoding, "replace")
                 value = value.encode(default_encoding, "replace")
                 ns_accumulator.append("%s=%s" % (name, value))
@@ -360,10 +369,10 @@ def mcxml_copyout():
             xml_error('There are no attributes')
 
     elif path_comp == 'namespaces':
-        if xmlvfs.has_ns(node):
+        if xmlvfs.supports_namespaces and xmlvfs.has_ns(element):
             text = xmlvfs.ns2text(node)
         else:
-            xml_error('There are no attributes')
+            xml_error('There are no namespaces')
 
     elif path_comp == 'text':
         text = xmlvfs.collect_text(node)
