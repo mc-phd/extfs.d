@@ -37,7 +37,7 @@ The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2013 PhiloSoft Design"
 __license__ = "GPL"
@@ -314,6 +314,7 @@ if use_lxml:
         def ns2text(self, node):
             ns_accumulator = []
             for name, value in self._get_local_ns(node).items():
+                if name is None: name = ''
                 name = name.encode(default_encoding, "replace")
                 value = value.encode(default_encoding, "replace")
                 ns_accumulator.append("%s=%s" % (name, value))
@@ -369,7 +370,7 @@ def mcxml_copyout():
             xml_error('There are no attributes')
 
     elif path_comp == 'namespaces':
-        if xmlvfs.supports_namespaces and xmlvfs.has_ns(element):
+        if xmlvfs.supports_namespaces and xmlvfs.has_ns(node):
             text = xmlvfs.ns2text(node)
         else:
             xml_error('There are no namespaces')
