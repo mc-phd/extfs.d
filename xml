@@ -37,7 +37,7 @@ The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 
 """
 
-__version__ = "0.6.1"
+__version__ = "1.0.0"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2013 PhiloSoft Design"
 __license__ = "GPL"
