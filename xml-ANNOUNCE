@@ -38,6 +38,11 @@ values are reencoded to the console encoding. Text nodes and comments are
 collected in a file named "text", stripped and reencoded. The filesystem is
 read-only.
 
+Implementation based on minidom doesn't understand namespaces, it just shows
+them among other attributes. ElementTree-based implementation doesn't show
+namespaces at all. Implementation based on lxml.etree shows namespaces in a
+separate file "namespaces".
+
 It is useful to have a top-down view on an XML structure but it's especially
 convenient to extract text values from tags. One can get, for example, a
 base64-encoded image - just walk down the VFS to the tag's directory and copy
