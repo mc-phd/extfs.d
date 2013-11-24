@@ -32,7 +32,7 @@ WHERE TO GET
 
 
 The VFS represents tags as directories; the directories are numbered to
-distinguish tags with the same name; also numbering helps to sort tags by their
+distinguish tags with the same name; numbering also helps to sort tags by their
 order in XML instead of sorting them by name. Attributes, text nodes and
 comments are represented as text files; attributes are shown in a file named
 "attributes", attributes are listed in the file as name=value lines (I
