@@ -13,7 +13,7 @@ The script requires Midnight Commander 3.1+
 OpenOBEX 1.0.1+ (http://dev.zuckschwerdt.org/openobex/) and ObexFTP 0.10.4+
 (http://triq.net/obexftp).
 
-Edit the script, and correct the the full path to the obexftp binary (see
+Edit the script, and correct the full path to the obexftp binary (see
 obexftp_prog below). For mc 4.7+ put the script in
 $HOME/[.local/share/].mc/extfs.d. For older versions put it in
 /usr/[local/][lib|share]/mc/extfs and add a line "obexftp" to the
