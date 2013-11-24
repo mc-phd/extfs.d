@@ -40,7 +40,7 @@ type/^XML *(1\.0 *)?document text
     Open=%cd %p#xml
 
 To enable file types add or change the following configuration option in
-ini file:
+ini file in section [Midnight-Commander]:
 
 use_file_to_guess_type=1
 
