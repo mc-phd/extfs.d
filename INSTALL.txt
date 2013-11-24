@@ -1,0 +1,64 @@
+How to install an external VFS script
+=====================================
+
+Related to extfs installation there are two major versions of Midnight
+Commander. Older versions before 4.7.something use extfs.ini
+configuration file. Newer versions simply allow to drop a VFS script to
+~/.mc/extfs.d directory. One can distinguish these versions by looking
+up the file extfs.ini; run the following command from the command line:
+
+locate -b \\extfs.ini
+
+(I use GNU locate conventions; adapt the command line to your system;
+the simplest variant is just "locate extfs.ini".)
+
+Usual places for extfs.ini are /etc/mc/extfs/extfs.ini,
+/usr/lib/mc/extfs/extfs.ini, /usr/share/mc/extfs/extfs.ini or
+/usr/local/share/mc/extfs/extfs.ini.
+
+Older versions - extfs.ini
+--------------------------
+
+On the system where there is a file extfs.ini a VFS script has to be
+installed the following way. Put the script into the system extfs
+directory - /usr/share/mc/extfs/ or /usr/local/share/mc/extfs/. Edit
+extfs.ini - add a line naming the script; for example, if one's
+installing xml VFS one has to do something like
+
+cd /etc/mc/extfs
+echo xml >>extfs.ini
+
+To use the installed VFS one also has to edit ~/.mc/mc.ext to assign the
+VFS to file extension(s) or type(s). For example to assign xml VFS to
+*.xml files (ignore case) and to XML file type add the following to
+mc.ext:
+
+regex/\.([xX][mM][lL])$
+    Open=%cd %p#xml
+
+type/^XML *document text
+    Open=%cd %p#xml
+
+To enable file types add or change the following configuration option in
+ini file:
+
+use_file_to_guess_type=1
+
+This has to be done using text editor - mc doesn't allow editing the
+option in its configuration editor.
+
+Newer versions ~/.mc/extfs.d
+----------------------------
+
+For newer versions just drop a VFS script to ~/.mc/extfs.d or
+~/.local/share/mc/extfs.d/ directory (verify directory by running "mc -F").
+Edit mc.ext; the syntax is slightly different:
+
+regex/\.([xX][mM][lL])$
+    Include=xml
+
+type/^XML *document text
+    Include=xml
+
+include/xml
+    Open=%cd %p/xml://
