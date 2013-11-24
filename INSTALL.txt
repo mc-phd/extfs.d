@@ -36,7 +36,7 @@ mc.ext:
 regex/\.([xX][mM][lL])$
     Open=%cd %p#xml
 
-type/^XML *document text
+type/^XML *(1\.0 *)?document text
     Open=%cd %p#xml
 
 To enable file types add or change the following configuration option in
@@ -57,7 +57,7 @@ Edit mc.ext; the syntax is slightly different:
 regex/\.([xX][mM][lL])$
     Include=xml
 
-type/^XML *document text
+type/^XML *(1\.0 *)?document text
     Include=xml
 
 include/xml
