@@ -1,0 +1,40 @@
+Torrent VFS для Midnight Commander
+
+
+ЧТО
+   Драйвер внешней файловой системы, показывающий в Midnight Commander
+содержание файла .torrent в виде файловой системы - директории, файлы и
+метаинформацию о торренте.
+
+
+ГДЕ
+   Дом. страничка: http://phdru.name/Software/mc/torrent.html
+   Скачать:        http://phdru.name/Software/mc/torrent
+    git clone http://git.phdru.name/extfs.d.git
+     git clone git://git.phdru.name/extfs.d.git
+
+   Инструкции по установке (eng.): http://phdru.name/Software/mc/INSTALL.html
+
+
+Torrent VFS показывает файлы и директории из файла .torrent; все файлы,
+разумеется, пусты, но VFS показывает их размеры (размеры есть в файле
+.torrent). Имена файлов перекодируются из кодировки файла .torrent в кодировку
+текущей локали.
+
+Torrent VFS показывает также и метаинформацию в виде файлов в директории .META.
+Размер и содержание этих файлов берутся из соответствующих полей файла
+.torrent. Драйвер не проверяет, что файл .torrent состоит из директории .META
+(крайне мало вероятно).
+
+Дата/время всех файлов устанавливается в 1-ое января текущего года. Файловая
+система, конечно, только для чтения.
+
+
+АВТОР
+   Олег Бройтман <phd@phdru.name>
+
+COPYRIGHT
+   Copyright (C) 2010-2013 PhiloSoft Design
+
+ЛИЦЕНЗИЯ
+   GPL
