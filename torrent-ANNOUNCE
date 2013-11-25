@@ -35,6 +35,20 @@ WHERE TO GET
    Installation instructions: http://phdru.name/Software/mc/INSTALL.html
 
 
+The VFS lists all files and directories from the torrent metafile; all files
+appear empty, of course, but the sizes are shown. Filenames are reencoded from
+the metafile's encoding/codepage to the current locale.
+
+Along with the files/directories in the torrent metafile the VFS also presents
+meta information - in the form of files in .META directory. The size and
+contents of these files are taken from the corresponding fields in the torrent
+metafile. The script doesn't check if the torrent consists of a .META file or
+directory (quite unlikely).
+
+Date/time for all files is set to midnight of the 1st January of the current
+year. The filesystem is, naturally, read-only.
+
+
 AUTHOR
    Oleg Broytman <phd@phdru.name>
 
