@@ -19,6 +19,9 @@ $HOME/[.local/share/].mc/extfs.d. For older versions put it in
 /usr/[local/][lib|share]/mc/extfs and add a line "obexftp" to the
 /usr/[local/][lib|share]/mc/extfs/extfs.ini. Make the script executable.
 
+See detailed installation instructions at
+http://phdru.name/Software/mc/INSTALL.html.
+
 Create somewhere a transport file. The transport file may have any name, and is
 expected to be a text file with at least one line defining the transport to
 your device. Other lines in the file are ignored.

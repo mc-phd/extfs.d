@@ -30,6 +30,8 @@ WHERE TO GET
     git clone http://git.phdru.name/extfs.d.git
      git clone git://git.phdru.name/extfs.d.git
 
+   Installation instructions: http://phdru.name/Software/mc/INSTALL.html
+
 
 The VFS represents tags as directories; the directories are numbered to
 distinguish tags with the same name; numbering also helps to sort tags by their

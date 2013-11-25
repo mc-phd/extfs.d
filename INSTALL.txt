@@ -21,9 +21,9 @@ Older versions - extfs.ini
 
 On the system where there is a file extfs.ini a VFS script has to be
 installed the following way. Put the script into the system extfs
-directory - /usr/share/mc/extfs/ or /usr/local/share/mc/extfs/. Edit
-extfs.ini - add a line naming the script; for example, if one's
-installing xml VFS one has to do something like
+directory - /usr/share/mc/extfs/ or /usr/local/share/mc/extfs/. Make the
+script executable. Edit extfs.ini - add a line naming the script; for
+example, if one's installing xml VFS one has to do something like
 
 cd /etc/mc/extfs
 echo xml >>extfs.ini
@@ -52,7 +52,8 @@ Newer versions ~/.mc/extfs.d
 
 For newer versions just drop a VFS script to ~/.mc/extfs.d or
 ~/.local/share/mc/extfs.d/ directory (verify directory by running "mc -F").
-Edit mc.ext; the syntax is slightly different:
+Make the script executable. Edit mc.ext; the syntax is slightly
+different:
 
 regex/\.([xX][mM][lL])$
     Include=xml
@@ -62,3 +63,5 @@ type/^XML *(1\.0 *)?document text
 
 include/xml
     Open=%cd %p/xml://
+
+Enable file types guessing (see above).

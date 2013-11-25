@@ -13,6 +13,9 @@ For mc 4.7+ run this "cd" command in the Midnight Commander (in the "bindings"
 file the command is "%cd"): cd file/xml://; in older versions it is
 cd file#xml, where "file" is the name of your XML file.
 
+See detailed installation instructions at
+http://phdru.name/Software/mc/INSTALL.html.
+
 The VFS represents tags as directories; the directories are numbered to
 distinguish tags with the same name; numbering also helps to sort tags by their
 order in XML instead of sorting them by name. Attributes, text nodes and

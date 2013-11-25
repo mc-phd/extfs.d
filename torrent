@@ -12,10 +12,14 @@ Make the script executable.
 
 For mc 4.7+ run this "cd" command in the Midnight Commander (in the "bindings"
 file the command is "%cd"): cd file/torrent://; In older versions it is
-cd file#torrent, where "file" is the name of your torrent metafile. The VFS
-lists all files and directories from the torrent metafile; all files appear
-empty, of course, but the sizes are shown. Filenames are reencoded from the
-metafile's encoding/codepage to the current locale.
+cd file#torrent, where "file" is the name of your torrent metafile.
+
+See detailed installation instructions at
+http://phdru.name/Software/mc/INSTALL.html.
+
+The VFS lists all files and directories from the torrent metafile; all files
+appear empty, of course, but the sizes are shown. Filenames are reencoded from
+the metafile's encoding/codepage to the current locale.
 
 Along with the files/directories in the torrent metafile the VFS also presents
 meta information - in the form of files in .META directory. The size and
