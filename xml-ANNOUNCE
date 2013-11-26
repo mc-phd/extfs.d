@@ -5,6 +5,9 @@ WHAT IS IT
    View an XML file in Midnight Commander as a filesystem.
 
 
+WHAT'S NEW in version 1.1.0 (2013-11-26)
+   Show comment(s) before the root element.
+
 WHAT'S NEW in version 1.0.1 (2013-11-24)
    Fixed a few minor bugs.
 
