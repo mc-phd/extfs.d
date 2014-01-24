@@ -29,7 +29,7 @@ WHERE TO GET
    Home page: http://phdru.name/Software/mc/xml.html
    Download:  http://phdru.name/Software/mc/xml
     git clone http://git.phdru.name/extfs.d.git
-     git clone git://git.phdru.name/extfs.d.git
+    git clone  git://git.phdru.name/extfs.d.git
 
    Installation instructions: http://phdru.name/Software/mc/INSTALL.html
 
