@@ -66,3 +66,5 @@ include/xml
     Open=%cd %p/xml://
 
 Enable file types guessing (see above).
+
+See my http://phdru.name/Software/dotfiles/mc/mc.ext.html for examples.
