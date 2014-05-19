@@ -1,0 +1,8 @@
+#! /bin/sh
+
+current="`git config --get remote.current.url`" &&
+
+git pull --ff-only current master && git push web &&
+
+cd "$current" &&
+exec git pull origin
