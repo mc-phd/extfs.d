@@ -259,7 +259,7 @@ if use_elementtree or use_lxml:
 if use_elementtree:
     class ElementTreeXmlVfs(CommonEtreeXmlVfs):
         def parse(self):
-            # Copied from http://effbot.org/zone/element-pi.ht
+            # Copied from http://effbot.org/zone/element-pi.htm
 
             class PIParser(ET.XMLTreeBuilder):
 
