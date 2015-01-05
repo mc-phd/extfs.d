@@ -1,1 +1,3 @@
 git/hg VFS: commits/branches/tags as directories.
+
+SQL VFS: tables as files.
