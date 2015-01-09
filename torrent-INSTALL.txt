@@ -1,0 +1,20 @@
+How to install torrent VFS script
+=================================
+
+First, see the general instruction at `<INSTALL.html>`_.
+
+Older versions of mc
+--------------------
+
+To assign torrent VFS to ``*.torrent`` files add the following to mc.ext::
+
+  shell/.torrent
+    Open=%cd %p#torrent
+
+Newer versions
+--------------
+
+Edit ``mc.ext``; the syntax is slightly different::
+
+  shell/.torrent
+    Open=%cd %p/torrent://

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+<title>How to install an external VFS script</title>
+<style type="text/css">
+
+
+</style>
+</head>
+<body>
+<div class="document" id="how-to-install-an-external-vfs-script">
+<h1 class="title">How to install an external VFS script</h1>
+
+<p>Related to extfs installation there are two major versions of <tt class="docutils literal">Midnight
+Commander</tt>. Older versions before 4.7.something use <tt class="docutils literal">extfs.ini</tt>
+configuration file. Newer versions simply allow to drop a VFS script to
+<tt class="docutils literal"><span class="pre">$HOME/.mc/extfs.d</span></tt> directory. One can distinguish these versions by
+looking up the file <tt class="docutils literal">extfs.ini</tt>; run the following command from the
+command line:</p>
+<pre class="literal-block">
+locate -b \\extfs.ini
+</pre>
+<p>(I use GNU locate conventions; adapt the command line to your system;
+the simplest variant is just <tt class="docutils literal">locate extfs.ini</tt>.)</p>
+<p>Usual places for <tt class="docutils literal">extfs.ini</tt> are <tt class="docutils literal">/etc/mc/extfs/extfs.ini</tt>,
+<tt class="docutils literal">/usr/lib/mc/extfs/extfs.ini</tt>, <tt class="docutils literal">/usr/share/mc/extfs/extfs.ini</tt> or
+<tt class="docutils literal">/usr/local/share/mc/extfs/extfs.ini</tt>.</p>
+<div class="section" id="older-versions-extfs-ini">
+<h1>Older versions - extfs.ini</h1>
+<p>On the system where there is a file extfs.ini a VFS script has to be
+installed the following way. Put the script into the system extfs
+directory - <tt class="docutils literal">/usr/share/mc/extfs/</tt> or <tt class="docutils literal">/usr/local/share/mc/extfs/</tt>.
+Make the script executable. Edit <tt class="docutils literal">extfs.ini</tt> - add a line naming the
+script; for example, if one's installing xml VFS one has to do something
+like:</p>
+<pre class="literal-block">
+cd /etc/mc/extfs
+echo xml &gt;&gt;extfs.ini
+</pre>
+<p>To use the installed VFS one also has to edit <tt class="docutils literal"><span class="pre">$HOME/.mc/mc.ext</span></tt> to assign
+the VFS to file extension(s) or type(s).</p>
+<p>To enable file types add or change the following configuration option in
+ini file in section <tt class="docutils literal"><span class="pre">[Midnight-Commander]</span></tt>:</p>
+<pre class="literal-block">
+use_file_to_guess_type=1
+</pre>
+<p>This has to be done using text editor - <tt class="docutils literal">mc</tt> doesn't allow editing the
+option in its configuration editor.</p>
+</div>
+<div class="section" id="newer-versions-home-mc-extfs-d">
+<h1>Newer versions - $HOME/.mc/extfs.d</h1>
+<p>For newer versions just drop a VFS script to <tt class="docutils literal"><span class="pre">$HOME/.mc/extfs.d</span></tt> or
+<tt class="docutils literal"><span class="pre">$HOME/.local/share/mc/extfs.d/</span></tt> directory (verify directory by running
+<tt class="docutils literal">mc <span class="pre">-F</span></tt>). Make the script executable. Edit <tt class="docutils literal">mc.ext</tt>. Enable file types
+guessing (see above).</p>
+<p>See my <a class="reference external" href="http://phdru.name/Software/dotfiles/mc/mc.ext.html">http://phdru.name/Software/dotfiles/mc/mc.ext.html</a> for examples.</p>
+</div>
+</div>
+</body>
+</html>

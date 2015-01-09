@@ -1,0 +1,34 @@
+How to install XML VFS script
+=============================
+
+First, see the general instruction at `<INSTALL.html>`_.
+
+Older versions of mc
+--------------------
+
+To assign xml VFS to ``*.xml`` files (ignore case) and to XML file type add
+the following to ``mc.ext``::
+
+  regex/\.([xX][mM][lL])$
+    Open=%cd %p#xml
+
+  type/^XML *(1\.0 *)?document text
+    Open=%cd %p#xml
+
+Enable file types guessing.
+
+Newer versions
+--------------
+
+Edit ``mc.ext``; the syntax is slightly different::
+
+  regex/\.([xX][mM][lL])$
+    Include=xml
+
+  type/^XML *(1\.0 *)?document text
+    Include=xml
+
+  include/xml
+    Open=%cd %p/xml://
+
+Enable file types guessing.
