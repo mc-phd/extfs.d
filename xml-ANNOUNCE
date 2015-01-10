@@ -5,6 +5,9 @@ WHAT IS IT
    View an XML file in Midnight Commander as a filesystem.
 
 
+WHAT'S NEW in version 1.1.2 (2015-01-10)
+   Changed link to installation instructions.
+
 WHAT'S NEW in version 1.1.1 (2014-07-17)
    Fix a bug in removing excessive namespaces (lxml).
 
@@ -55,7 +58,7 @@ AUTHOR
    Oleg Broytman <phd@phdru.name>
 
 COPYRIGHT
-   Copyright (C) 2013, 2014 PhiloSoft Design
+   Copyright (C) 2013-2015 PhiloSoft Design
 
 LICENSE
    GPL

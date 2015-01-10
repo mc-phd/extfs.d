@@ -14,7 +14,7 @@ file the command is "%cd"): cd file/xml://; in older versions it is
 cd file#xml, where "file" is the name of your XML file.
 
 See detailed installation instructions at
-http://phdru.name/Software/mc/INSTALL.html.
+http://phdru.name/Software/mc/xml_INSTALL.html.
 
 The VFS represents tags as directories; the directories are numbered to
 distinguish tags with the same name; numbering also helps to sort tags by their
@@ -40,9 +40,9 @@ The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 
 """
 
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 __author__ = "Oleg Broytman <phd@phdru.name>"
-__copyright__ = "Copyright (C) 2013, 2014 PhiloSoft Design"
+__copyright__ = "Copyright (C) 2013-2015 PhiloSoft Design"
 __license__ = "GPL"
 
 force_implementation = None  # Can be None for default choice,

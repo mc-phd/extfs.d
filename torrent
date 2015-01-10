@@ -15,7 +15,7 @@ file the command is "%cd"): cd file/torrent://; In older versions it is
 cd file#torrent, where "file" is the name of your torrent metafile.
 
 See detailed installation instructions at
-http://phdru.name/Software/mc/INSTALL.html.
+http://phdru.name/Software/mc/torrent_INSTALL.html.
 
 The VFS lists all files and directories from the torrent metafile; all files
 appear empty, of course, but the sizes are shown. Filenames are reencoded from
@@ -32,9 +32,9 @@ year. The filesystem is, naturally, read-only.
 
 """
 
-__version__ = "1.2.1"
+__version__ = "1.2.2"
 __author__ = "Oleg Broytman <phd@phdru.name>"
-__copyright__ = "Copyright (C) 2010-2013 PhiloSoft Design"
+__copyright__ = "Copyright (C) 2010-2015 PhiloSoft Design"
 __license__ = "GPL"
 
 

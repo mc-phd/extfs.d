@@ -1,3 +1,6 @@
+WHAT'S NEW in version 1.1.2 (2015-01-10)
+   Changed link to installation instructions.
+
 WHAT'S NEW in version 1.1.1 (2014-07-17)
 
    Fix a bug in removing excessive namespaces (lxml).
