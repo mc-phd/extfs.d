@@ -6,27 +6,28 @@ WHAT IS IT
 Midnight Commander.
 
 
-WHAT'S NEW in version 1.2.2 (2015-01-10)
+WHAT'S NEW
+Version 1.2.2 (2015-01-10)
    Changed link to installation instructions.
 
-WHAT'S NEW in version 1.2.1 (2013-11-20)
+Version 1.2.1 (2013-11-20)
    Fixed a minor bug.
 
-WHAT'S NEW in version 1.2.0 (2013-11-16)
+Version 1.2.0 (2013-11-16)
    Get charset from the environment.
 
-WHAT'S NEW in version 1.1.1 (2013-11-11)
+Version 1.1.1 (2013-11-11)
    Documented the fact that the script can be put in
 $HOME/[.local/share/].mc/extfs.d.
 
-WHAT'S NEW in version 1.1.0 (2013-06-10)
+Version 1.1.0 (2013-06-10)
    Show DHT nodes if they are present.
    Show publisher and publisher-url if they are available.
    Use name.utf-8, path.utf-8 and comment.utf-8 if those are available.
    Use codepage instead of encoding if codepage is available
    and encoding is not.
 
-WHAT'S NEW in version 1.0.0 (2010-11-11)
+Version 1.0.0 (2010-11-11)
    Initial release.
 
 

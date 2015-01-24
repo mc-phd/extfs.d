@@ -5,20 +5,21 @@ WHAT IS IT
    View an XML file in Midnight Commander as a filesystem.
 
 
-WHAT'S NEW in version 1.1.2 (2015-01-10)
+WHAT'S NEW
+Version 1.1.2 (2015-01-10)
    Changed link to installation instructions.
 
-WHAT'S NEW in version 1.1.1 (2014-07-17)
+Version 1.1.1 (2014-07-17)
    Fix a bug in removing excessive namespaces (lxml).
 
-WHAT'S NEW in version 1.1.0 (2013-11-26)
+Version 1.1.0 (2013-11-26)
    Show comment(s) before the root element.
 
-WHAT'S NEW in version 1.0.0 (2013-11-23)
+Version 1.0.0 (2013-11-23)
    With lxml.etree-based implementation show only child namespaces
    (calculated as combined namespaces minus parent's namespaces).
 
-WHAT'S NEW in version 0.3.0 (2013-11-16)
+Version 0.3.0 (2013-11-16)
    Initial release. Implementation based on minidom.
 
 

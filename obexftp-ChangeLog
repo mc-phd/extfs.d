@@ -1,43 +1,36 @@
-WHAT'S NEW in version 1.4.0 (2013-11-16)
+Version 1.4.0 (2013-11-16)
 
    Get charset from the environment.
 
-
-WHAT'S NEW in version 1.3.2 (2013-11-11)
+Version 1.3.2 (2013-11-11)
 
    Documented the fact that the script can be put in
    $HOME/[.local/share/].mc/extfs.d.
 
-
-WHAT'S NEW in version 1.3.1 (2012-04-15)
+Version 1.3.1 (2012-04-15)
 
    Removed svn:keywods.
 
-
-WHAT'S NEW in version 1.3.0 (2010-05-09)
+Version 1.3.0 (2010-05-09)
 
    USB transport.
 
-
-WHAT'S NEW in version 1.2.4 (2007-06-12)
+Version 1.2.4 (2007-06-12)
 
    Minor misspelling fix.
 
-
-WHAT'S NEW in version 1.2.3 (2005-11-24)
+Version 1.2.3 (2005-11-24)
 
    Put error logfile in the same directory as the transport file. If the
 directory or the file is not writeable - try to put the logfile in a temporary
 
-
-WHAT'S NEW in version 1.2.1 (2004-10-03)
+Version 1.2.1 (2004-10-03)
 
    Put error logfile in the same directory as the transport file. If the
 directory or the file is not writeable - try to put the logfile in a temporary
 directory, usually /tmp.
 
-
-WHAT'S NEW in version 1.2.0 (2004-09-27)
+Version 1.2.0 (2004-09-27)
 
    Fixed a major bug with blocked read from a pipe. Many thanks to Marius
 Konitzer <m.konitzer@gmx.de> for reporting the bug. Now I use files instead of
@@ -45,8 +38,7 @@ pipes.
 
    More tests during parsing of a transport file.
 
-
-WHAT'S NEW in version 1.1.0 (2004-07-27)
+Version 1.1.0 (2004-07-27)
 
    Added more inline documentations. Added logging; this raises requirement to
 Python 2.3+. Catch more errors and exceptions.
