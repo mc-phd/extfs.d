@@ -1,7 +1,7 @@
 How to install torrent VFS script
 =================================
 
-First, see the general instruction at `<INSTALL.html>`_.
+First, see the general instructions at `<INSTALL.html>`_.
 
 Older versions of mc
 --------------------
