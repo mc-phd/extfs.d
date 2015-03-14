@@ -40,7 +40,7 @@ The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 
 """
 
-__version__ = "1.1.2"
+__version__ = "1.1.3"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2013-2015 PhiloSoft Design"
 __license__ = "GPL"
@@ -339,8 +339,10 @@ if use_lxml:
         def ns2text(self, node):
             ns_accumulator = []
             for name, value in self._get_local_ns(node).items():
-                if name is None: name = ''
-                name = name.encode(default_encoding, "replace")
+                if name:
+                    name = name.encode(default_encoding, "replace")
+                else:
+                    name = 'xmlns'
                 value = value.encode(default_encoding, "replace")
                 ns_accumulator.append("%s=%s" % (name, value))
             return '\n'.join(ns_accumulator)
