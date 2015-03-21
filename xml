@@ -18,12 +18,13 @@ http://phdru.name/Software/mc/xml_INSTALL.html.
 
 The VFS represents tags as directories; the directories are numbered to
 distinguish tags with the same name; numbering also helps to sort tags by their
-order in XML instead of sorting them by name. Attributes, text nodes and
-comments are represented as text files; attributes are shown in a file named
-"attributes", attributes are listed in the file as name=value lines (I
-deliberately ignore a small chance of newline characters in values); names and
-values are reencoded to the console encoding. Text nodes and comments are
-collected in a file named "text", stripped and reencoded. The filesystem is
+order in XML instead of sorting them by name and prevents name clash when tag
+names coincide with the names of special files used by XML VFS. Attributes,
+text nodes and comments are represented as text files; attributes are shown in
+a file named "attributes", attributes are listed in the file as name=value
+lines (I deliberately ignore a small chance of newline characters in values);
+names and values are reencoded to the console encoding. Text nodes and comments
+are collected in a file named "text", stripped and reencoded. The filesystem is
 read-only.
 
 Implementation based on minidom doesn't understand namespaces, it just shows
@@ -40,7 +41,7 @@ The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 
 """
 
-__version__ = "1.1.3"
+__version__ = "1.1.4"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2013-2015 PhiloSoft Design"
 __license__ = "GPL"
