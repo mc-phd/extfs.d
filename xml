@@ -46,8 +46,8 @@ __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2013-2015 PhiloSoft Design"
 __license__ = "GPL"
 
-force_implementation = None  # Can be None for default choice,
-                             # 'lxml', 'elementtree' or 'minidom'
+# Can be None for default choice, 'lxml', 'elementtree' or 'minidom'.
+force_implementation = None
 
 use_minidom = True
 use_elementtree = False
@@ -74,29 +74,29 @@ else:
     use_lxml = True
 
 try:
-   import locale
-   use_locale = True
+    import locale
+    use_locale = True
 except ImportError:
-   use_locale = False
+    use_locale = False
 
 if use_locale:
-   # Get the default charset.
-   try:
-      lcAll = locale.getdefaultlocale()
-   except locale.Error, err:
-      print >>sys.stderr, "WARNING:", err
-      lcAll = []
+    # Get the default charset.
+    try:
+        lcAll = locale.getdefaultlocale()
+    except locale.Error, err:
+        print >>sys.stderr, "WARNING:", err
+        lcAll = []
 
-   if len(lcAll) == 2:
-      default_encoding = lcAll[1]
-   else:
-      try:
-         default_encoding = locale.getpreferredencoding()
-      except locale.Error, err:
-         print >>sys.stderr, "WARNING:", err
-         default_encoding = sys.getdefaultencoding()
+    if len(lcAll) == 2:
+        default_encoding = lcAll[1]
+    else:
+        try:
+            default_encoding = locale.getpreferredencoding()
+        except locale.Error, err:
+            print >>sys.stderr, "WARNING:", err
+            default_encoding = sys.getdefaultencoding()
 else:
-   default_encoding = sys.getdefaultencoding()
+    default_encoding = sys.getdefaultencoding()
 
 import logging
 logger = logging.getLogger('xml-mcextfs')
@@ -112,8 +112,7 @@ Author: %s
 
 This is not a program. Put the script in $HOME/[.local/share/].mc/extfs.d or
 /usr/[local/][lib|share]/mc/extfs. For more information read the source!""",
-   __version__, __author__, __copyright__
-)
+                    __version__, __author__, __copyright__)
     sys.exit(1)
 
 
@@ -215,7 +214,8 @@ class MiniDOMXmlVfs(XmlVfs):
                 text = element.nodeValue.strip()
             else:
                 xml_error("Unknown node type %d" % element.nodeType)
-            if text: text_accumulator.append(text)
+            if text:
+                text_accumulator.append(text)
         return '\n'.join(text_accumulator).encode(default_encoding, "replace")
 
     def getroot(self):
@@ -246,15 +246,18 @@ if use_elementtree or use_lxml:
             text_accumulator = []
             if node.text:
                 text = node.text.strip()
-                if text: text_accumulator.append(text)
+                if text:
+                    text_accumulator.append(text)
             for element in node:
                 if not self.istag(element):
                     text = u"<!--%s-->" % element.text
                     text_accumulator.append(text)
             if node.tail:
                 text = node.tail.strip()
-                if text: text_accumulator.append(text)
-            return '\n'.join(text_accumulator).encode(default_encoding, "replace")
+                if text:
+                    text_accumulator.append(text)
+            return '\n'.join(text_accumulator).encode(
+                default_encoding, "replace")
 
         def getchildren(self, node):
             return list(node)
@@ -305,7 +308,8 @@ if use_elementtree:
                 if not self.istag(element):
                     text = u"<!--%s-->" % element.text
                     text_accumulator.append(text)
-            return '\n'.join(text_accumulator).encode(default_encoding, "replace")
+            return '\n'.join(text_accumulator).encode(
+                default_encoding, "replace")
 
         def getlocalname(self, name):
             if name.startswith('{'):
@@ -325,10 +329,12 @@ if use_lxml:
 
         def get_root_comments(self):
             text_accumulator = []
-            for element in self.document.getroot().itersiblings(tag=etree.Comment, preceding=True):
+            for element in self.document.getroot().itersiblings(
+                    tag=etree.Comment, preceding=True):
                 text = u"<!--%s-->" % element.text
                 text_accumulator.append(text)
-            return '\n'.join(text_accumulator).encode(default_encoding, "replace")
+            return '\n'.join(text_accumulator).encode(
+                default_encoding, "replace")
 
         def getlocalname(self, name):
             return etree.QName(name).localname
@@ -373,7 +379,8 @@ def build_xmlvfs():
     elif force_implementation == 'lxml':
         return LxmlEtreeXmlVfs()
     else:
-        raise ValueError('Unknown implementation "%s", expected "minidom", "elementtree" or "lxml"' % force_implementation)
+        raise ValueError('Unknown implementation "%s", expected "minidom", '
+                         '"elementtree" or "lxml"' % force_implementation)
 
 
 def mcxml_list():
@@ -430,15 +437,19 @@ def mcxml_copyin():
     """Put a file to the VFS"""
     sys.exit("XML VFS doesn't support adding files (read-only filesystem)")
 
+
 def mcxml_rm():
     """Remove a file from the VFS"""
-    sys.exit("XML VFS doesn't support removing files/directories (read-only filesystem)")
+    sys.exit("XML VFS doesn't support removing files/directories "
+             "(read-only filesystem)")
 
 mcxml_rmdir = mcxml_rm
 
+
 def mcxml_mkdir():
     """Create a directory in the VFS"""
-    sys.exit("XML VFS doesn't support creating directories (read-only filesystem)")
+    sys.exit("XML VFS doesn't support creating directories "
+             "(read-only filesystem)")
 
 
 def xml_error(error_str):
@@ -449,7 +460,7 @@ command = sys.argv[1]
 procname = "mcxml_" + command
 
 g = globals()
-if not g.has_key(procname):
+if procname not in g:
     logger.critical("Unknown command %s", command)
     sys.exit(1)
 
