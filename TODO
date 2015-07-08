@@ -1,3 +1,9 @@
+Set directories/files date/time:
+   in torrent VFS set dt to the content of ".META/creation date" file;
+   in xml VFS set dt to the dt of the XML file.
+
+
 git/hg VFS: commits/branches/tags as directories.
+
 
 SQL VFS: databases as directories, tables as files.
