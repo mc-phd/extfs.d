@@ -55,6 +55,9 @@ names and values are reencoded to the console encoding. Text nodes and comments
 are collected in a file named "text", stripped and reencoded. The filesystem is
 read-only.
 
+Date/time for all directories/files set to the last modification time of the
+XML file.
+
 Implementation based on minidom doesn't understand namespaces, it just shows
 them among other attributes. ElementTree-based implementation doesn't show
 namespaces at all. Implementation based on lxml.etree shows namespaces in a
