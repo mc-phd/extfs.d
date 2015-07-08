@@ -38,7 +38,7 @@ __copyright__ = "Copyright (C) 2010-2015 PhiloSoft Design"
 __license__ = "GPL"
 
 
-from os.path import getmtime
+from os.path import dirname, getmtime
 import sys
 from time import localtime, asctime
 from eff_bdecode import decode
@@ -182,10 +182,19 @@ def mctorrent_list():
     if 'piece length' in info:
         meta.append(('.META/piece length', len(str(info['piece length']))))
 
+    paths += meta
+    dirs = set()
+    for name, size in paths:
+        if '/' in name:
+            dirs.add(dirname(name))
+
     if not dt:
         dt = decode_datetime(getmtime(sys.argv[2]))
 
-    for name, size in paths + meta:
+    for name in sorted(dirs):
+        print "dr-xr-xr-x 1 user group 0 %s %s" % (dt, name)
+
+    for name, size in sorted(paths):
         print "-r--r--r-- 1 user group %d %s %s" % (size, dt, name)
 
 
