@@ -47,29 +47,29 @@ from time import localtime, asctime
 from eff_bdecode import decode
 
 try:
-   import locale
-   use_locale = True
+    import locale
+    use_locale = True
 except ImportError:
-   use_locale = False
+    use_locale = False
 
 if use_locale:
-   # Get the default charset.
-   try:
-      lcAll = locale.getdefaultlocale()
-   except locale.Error, err:
-      print >>sys.stderr, "WARNING:", err
-      lcAll = []
+    # Get the default charset.
+    try:
+        lcAll = locale.getdefaultlocale()
+    except locale.Error, err:
+        print >>sys.stderr, "WARNING:", err
+        lcAll = []
 
-   if len(lcAll) == 2:
-      default_encoding = lcAll[1]
-   else:
-      try:
-         default_encoding = locale.getpreferredencoding()
-      except locale.Error, err:
-         print >>sys.stderr, "WARNING:", err
-         default_encoding = sys.getdefaultencoding()
+    if len(lcAll) == 2:
+        default_encoding = lcAll[1]
+    else:
+        try:
+            default_encoding = locale.getpreferredencoding()
+        except locale.Error, err:
+            print >>sys.stderr, "WARNING:", err
+            default_encoding = sys.getdefaultencoding()
 else:
-   default_encoding = sys.getdefaultencoding()
+    default_encoding = sys.getdefaultencoding()
 
 import logging
 logger = logging.getLogger('torrent-mcextfs')
@@ -85,8 +85,7 @@ Author: %s
 
 This is not a program. Put the script in $HOME/[.local/share/].mc/extfs.d or
 /usr/[local/][lib|share]/mc/extfs. For more information read the source!""",
-   __version__, __author__, __copyright__
-)
+                    __version__, __author__, __copyright__)
     sys.exit(1)
 
 locale.setlocale(locale.LC_ALL, '')
@@ -123,26 +122,32 @@ def mctorrent_list():
                 if name_utf8:
                     path = '/'.join([name_utf8] + file['path.utf-8'])
                     if default_encoding != 'utf-8':
-                        path = path.decode('utf-8', 'replace').encode(default_encoding, 'replace')
+                        path = path.decode('utf-8', 'replace').encode(
+                            default_encoding, 'replace')
                 else:
                     _name_utf8 = name
                     if encoding and (encoding != 'utf-8'):
-                        _name_utf8 = _name_utf8.decode(encoding, 'replace').encode('utf-8', 'replace')
+                        _name_utf8 = _name_utf8.decode(
+                            encoding, 'replace').encode('utf-8', 'replace')
                     path = '/'.join([_name_utf8] + file['path.utf-8'])
                     if default_encoding != 'utf-8':
-                        path = path.decode('utf-8', 'replace').encode(default_encoding, 'replace')
+                        path = path.decode('utf-8', 'replace').encode(
+                            default_encoding, 'replace')
             else:
                 if name_utf8:
                     path = file['path']
                     if encoding and (encoding != 'utf-8'):
-                        path = path.decode(encoding, 'replace').encode('utf-8', 'replace')
+                        path = path.decode(encoding, 'replace').encode(
+                            'utf-8', 'replace')
                     path = '/'.join([name_utf8] + path)
                     if default_encoding != 'utf-8':
-                        path = path.decode('utf-8', 'replace').encode(default_encoding, 'replace')
+                        path = path.decode('utf-8', 'replace').encode(
+                            default_encoding, 'replace')
                 else:
                     path = '/'.join([name] + file['path'])
                     if encoding and (default_encoding != encoding):
-                        path = path.decode(encoding, 'replace').encode(default_encoding, 'replace')
+                        path = path.decode(encoding, 'replace').encode(
+                            default_encoding, 'replace')
             length = file['length']
             paths.append((path, length))
     else:  # One-file torrent
@@ -151,9 +156,11 @@ def mctorrent_list():
         length = info['length']
         if name_utf8:
             if default_encoding != 'utf-8':
-                name = name_utf8.decode('utf-8', 'replace').encode(default_encoding, 'replace')
+                name = name_utf8.decode('utf-8', 'replace').encode(
+                    default_encoding, 'replace')
         elif encoding and (default_encoding != encoding):
-            name = name.decode(encoding, 'replace').encode(default_encoding, 'replace')
+            name = name.decode(encoding, 'replace').encode(
+                default_encoding, 'replace')
         paths = [(name, length)]
 
     meta = []
@@ -161,7 +168,8 @@ def mctorrent_list():
                 'created by', 'creation date', 'encoding', \
                 'nodes', 'publisher', 'publisher-url':
         if name == 'comment' and 'comment.utf-8' in torrent:
-            data = torrent['comment.utf-8'].decode('utf-8').encode(default_encoding, 'replace')
+            data = torrent['comment.utf-8'].decode('utf-8').encode(
+                default_encoding, 'replace')
             meta.append(('.META/' + name, len(data)))
         elif name in torrent:
             if name == 'announce-list':
@@ -212,7 +220,8 @@ def mctorrent_copyout():
                 'created by', 'creation date', 'encoding', \
                 'nodes', 'publisher', 'publisher-url':
         if name == 'comment' and 'comment.utf-8' in torrent:
-            data = torrent['comment.utf-8'].decode('utf-8').encode(default_encoding, 'replace')
+            data = torrent['comment.utf-8'].decode('utf-8').encode(
+                default_encoding, 'replace')
         elif torrent_filename == '.META/' + name:
             if name in torrent:
                 if name == 'announce-list':
@@ -222,7 +231,8 @@ def mctorrent_copyout():
                 elif name == 'creation date':
                     data = decode_datetime_asc(torrent[name])
                 elif name == 'nodes':
-                    data = ['%s:%s' % (host, port) for host, port in torrent[name]]
+                    data = ['%s:%s' % (host, port)
+                            for host, port in torrent[name]]
                     data = '\n'.join(data)
                 else:
                     data = str(torrent[name])
@@ -257,20 +267,26 @@ def mctorrent_copyin():
     """Put a file to the VFS"""
     sys.exit("Torrent VFS doesn't support adding files (read-only filesystem)")
 
+
 def mctorrent_rm():
     """Remove a file from the VFS"""
-    sys.exit("Torrent VFS doesn't support removing files/directories (read-only filesystem)")
+    sys.exit("Torrent VFS doesn't support removing files/directories "
+             "(read-only filesystem)")
+
 
 mctorrent_rmdir = mctorrent_rm
 
+
 def mctorrent_mkdir():
     """Create a directory in the VFS"""
-    sys.exit("Torrent VFS doesn't support creating directories (read-only filesystem)")
+    sys.exit("Torrent VFS doesn't support creating directories "
+             "(read-only filesystem)")
 
 
 def torrent_error(error_str):
     logger.critical("Error parsing the torrent metafile: %s", error_str)
     sys.exit(1)
+
 
 def decode_torrent():
     try:
@@ -285,9 +301,11 @@ def decode_torrent():
 def decode_datetime_asc(dt):
     return asctime(localtime(float(dt)))
 
+
 def decode_datetime(dt):
     Y, m, d, H, M = localtime(float(dt))[0:5]
     return "%02d-%02d-%d %02d:%02d" % (m, d, Y, H, M)
+
 
 def decode_announce_list(announce):
     return '\n'.join(l[0] for l in announce)
@@ -297,7 +315,7 @@ command = sys.argv[1]
 procname = "mctorrent_" + command
 
 g = globals()
-if not g.has_key(procname):
+if procname not in g:
     logger.critical("Unknown command %s", command)
     sys.exit(1)
 

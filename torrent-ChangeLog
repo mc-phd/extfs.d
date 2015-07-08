@@ -3,6 +3,8 @@ Version 1.2.3 (2015-07-08)
    Set directories/files date/time to the content of ".META/creation date" file
 if it exists or to the last modification time of the torrent file itself.
 
+   Fix flake8 errors.
+
 Version 1.2.2 (2015-01-10)
 
    Changed link to installation instructions.
