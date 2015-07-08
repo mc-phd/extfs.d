@@ -32,13 +32,15 @@ year. The filesystem is, naturally, read-only.
 
 """
 
-__version__ = "1.2.2"
+__version__ = "1.2.3"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2010-2015 PhiloSoft Design"
 __license__ = "GPL"
 
 
+from os.path import getmtime
 import sys
+from time import localtime, asctime
 from eff_bdecode import decode
 
 try:
@@ -105,6 +107,7 @@ def mctorrent_list():
     name = info['name']
     name_utf8 = info.get('name.utf-8', None)
 
+    dt = None
     if 'files' in info:
         files = info['files']
         paths = []
@@ -163,7 +166,9 @@ def mctorrent_list():
             elif name == 'codepage':
                 data = str(torrent[name])
             elif name == 'creation date':
-                data = decode_datetime(torrent[name])
+                dt = torrent[name]
+                data = decode_datetime_asc(dt)
+                dt = decode_datetime(dt)
             elif name == 'nodes':
                 data = ['%s:%s' % (host, port) for host, port in torrent[name]]
                 data = '\n'.join(data)
@@ -177,8 +182,11 @@ def mctorrent_list():
     if 'piece length' in info:
         meta.append(('.META/piece length', len(str(info['piece length']))))
 
+    if not dt:
+        dt = decode_datetime(getmtime(sys.argv[2]))
+
     for name, size in paths + meta:
-        print "-r--r--r-- 1 user group %d Jan 1 00:00 %s" % (size, name)
+        print "-r--r--r-- 1 user group %d %s %s" % (size, dt, name)
 
 
 def mctorrent_copyout():
@@ -200,7 +208,7 @@ def mctorrent_copyout():
                 elif name == 'codepage':
                     data = str(torrent[name])
                 elif name == 'creation date':
-                    data = decode_datetime(torrent[name])
+                    data = decode_datetime_asc(torrent[name])
                 elif name == 'nodes':
                     data = ['%s:%s' % (host, port) for host, port in torrent[name]]
                     data = '\n'.join(data)
@@ -262,11 +270,12 @@ def decode_torrent():
         torrent_error(error_str)
 
 
+def decode_datetime_asc(dt):
+    return asctime(localtime(float(dt)))
+
 def decode_datetime(dt):
-    from time import localtime, asctime
-    the_time = float(dt)
-    l_now = localtime(the_time)
-    return asctime(l_now)
+    Y, m, d, H, M = localtime(float(dt))[0:5]
+    return "%02d-%02d-%d %02d:%02d" % (m, d, Y, H, M)
 
 def decode_announce_list(announce):
     return '\n'.join(l[0] for l in announce)
