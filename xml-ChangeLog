@@ -1,3 +1,8 @@
+Version 1.1.5 (2015-07-08)
+
+   Set directories/files date/time to the last modification time of the XML
+file.
+
 Version 1.1.4 (2015-03-21)
 
    Minor documentation update.

@@ -41,7 +41,7 @@ The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 
 """
 
-__version__ = "1.1.4"
+__version__ = "1.1.5"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2013-2015 PhiloSoft Design"
 __license__ = "GPL"
@@ -54,7 +54,9 @@ use_elementtree = False
 use_lxml = False
 
 import math
+from os.path import getmtime
 import sys
+from time import localtime
 import xml.dom.minidom
 
 try:
@@ -124,12 +126,18 @@ class XmlVfs(object):
     supports_namespaces = False
 
     def __init__(self):
+        self.xml_file = sys.argv[2]
         self.parse()
 
     def list(self):
+        Y, m, d, H, M = localtime(getmtime(self.xml_file))[0:5]
+        self.xml_file_dt = "%02d-%02d-%d %02d:%02d" % (m, d, Y, H, M)
+
         root_comments = self.get_root_comments()
         if root_comments:
-            print "-r--r--r-- 1 user group %d Jan 1 00:00 text" % (len(root_comments))
+            print "-r--r--r-- 1 user group %d %s text" % (
+                len(root_comments), self.xml_file_dt)
+
         self._list(self.getroot())
 
     def _list(self, node, path=''):
@@ -150,19 +158,20 @@ class XmlVfs(object):
             else:
                 subpath = '%s %s' % (template % n, tag)
             subpath_encoded = subpath.encode(default_encoding, "replace")
-            print "dr-xr-xr-x 1 user group 0 Jan 1 00:00 %s" % subpath_encoded
+            print "dr-xr-xr-x 1 user group 0 %s %s" % (
+                self.xml_file_dt, subpath_encoded)
             if self.getattrs(element):
                 attr_text = self.attrs2text(element)
-                print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/attributes" % (
-                    len(attr_text), subpath_encoded)
+                print "-r--r--r-- 1 user group %d %s %s/attributes" % (
+                    len(attr_text), self.xml_file_dt, subpath_encoded)
             if self.supports_namespaces and self.has_ns(element):
                 ns_text = self.ns2text(element)
-                print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/namespaces" % (
-                    len(ns_text), subpath_encoded)
+                print "-r--r--r-- 1 user group %d %s %s/namespaces" % (
+                    len(ns_text), self.xml_file_dt, subpath_encoded)
             text = self.collect_text(element)
             if text:
-                print "-r--r--r-- 1 user group %d Jan 1 00:00 %s/text" % (
-                    len(text), subpath_encoded)
+                print "-r--r--r-- 1 user group %d %s %s/text" % (
+                    len(text), self.xml_file_dt, subpath_encoded)
             self._list(element, subpath)
 
     def get_tag_node(self, node, i):
@@ -188,7 +197,7 @@ class XmlVfs(object):
 
 class MiniDOMXmlVfs(XmlVfs):
     def parse(self):
-        self.document = xml.dom.minidom.parse(sys.argv[2])
+        self.document = xml.dom.minidom.parse(self.xml_file)
 
     def getattrs(self, node):
         attrs = node.attributes
@@ -285,7 +294,7 @@ if use_elementtree:
                     self._target.data(target + " " + data)
                     self._target.end(ET.PI)
 
-            self.document = ET.parse(sys.argv[2], PIParser())
+            self.document = ET.parse(self.xml_file, PIParser())
 
         def getroot(self):
             return self.document.getroot()
@@ -309,7 +318,7 @@ if use_lxml:
         supports_namespaces = True
 
         def parse(self):
-            self.document = etree.parse(sys.argv[2])
+            self.document = etree.parse(self.xml_file)
 
         def getroot(self):
             return [self.document.getroot()]
