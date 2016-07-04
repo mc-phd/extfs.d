@@ -35,9 +35,9 @@ The filesystem is, naturally, read-only.
 
 """
 
-__version__ = "1.2.3"
+__version__ = "1.2.4"
 __author__ = "Oleg Broytman <phd@phdru.name>"
-__copyright__ = "Copyright (C) 2010-2015 PhiloSoft Design"
+__copyright__ = "Copyright (C) 2010-2016 PhiloSoft Design"
 __license__ = "GPL"
 
 
@@ -308,7 +308,7 @@ def decode_datetime(dt):
 
 
 def decode_announce_list(announce):
-    return '\n'.join(l[0] for l in announce)
+    return '\n'.join(l[0] for l in announce if l)
 
 
 command = sys.argv[1]
