@@ -37,10 +37,11 @@ The filesystem is, naturally, read-only.
 
 __version__ = "1.2.4"
 __author__ = "Oleg Broytman <phd@phdru.name>"
-__copyright__ = "Copyright (C) 2010-2016 PhiloSoft Design"
+__copyright__ = "Copyright (C) 2010-2018 PhiloSoft Design"
 __license__ = "GPL"
 
 
+from datetime import datetime
 from os.path import dirname, getmtime
 import sys
 from time import localtime, asctime
@@ -299,12 +300,19 @@ def decode_torrent():
 
 
 def decode_datetime_asc(dt):
-    return asctime(localtime(float(dt)))
+    try:
+        return asctime(localtime(float(dt)))
+    except ValueError:
+        return datetime.max.ctime()
 
 
 def decode_datetime(dt):
-    Y, m, d, H, M = localtime(float(dt))[0:5]
-    return "%02d-%02d-%d %02d:%02d" % (m, d, Y, H, M)
+    try:
+        Y, m, d, H, M = localtime(float(dt))[0:5]
+    except ValueError:
+        return datetime.max.ctime()
+    else:
+        return "%02d-%02d-%d %02d:%02d" % (m, d, Y, H, M)
 
 
 def decode_announce_list(announce):
