@@ -25,12 +25,12 @@ instead of pipes.
 
 
 WHERE TO GET
-   Home page: http://phdru.name/Software/cellphones/
-   Download:  http://phdru.name/Software/cellphones/obexftp
-    git clone http://git.phdru.name/extfs.d.git
+   Home page: https://phdru.name/Software/cellphones/
+   Download:  https://phdru.name/Software/cellphones/obexftp
+    git clone https://git.phdru.name/extfs.d.git
     git clone  git://git.phdru.name/extfs.d.git
 
-   Installation instructions: http://phdru.name/Software/mc/INSTALL.html
+   Installation instructions: https://phdru.name/Software/mc/INSTALL.html
 
 
 AUTHOR

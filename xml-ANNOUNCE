@@ -36,12 +36,12 @@ Version 0.3.0 (2013-11-16)
 
 
 WHERE TO GET
-   Home page: http://phdru.name/Software/mc/xml.html
-   Download:  http://phdru.name/Software/mc/xml
-    git clone http://git.phdru.name/extfs.d.git
+   Home page: https://phdru.name/Software/mc/xml.html
+   Download:  https://phdru.name/Software/mc/xml
+    git clone https://git.phdru.name/extfs.d.git
     git clone  git://git.phdru.name/extfs.d.git
 
-   Installation instructions: http://phdru.name/Software/mc/INSTALL.html
+   Installation instructions: https://phdru.name/Software/mc/INSTALL.html
 
 
 The VFS represents tags as directories; the directories are numbered to

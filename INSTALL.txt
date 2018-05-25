@@ -49,4 +49,4 @@ For newer versions just drop a VFS script to ``$HOME/.mc/extfs.d`` or
 ``mc -F``). Make the script executable. Edit ``mc.ext``. Enable file types
 guessing (see above).
 
-See my http://phdru.name/Software/dotfiles/mc/mc.ext.html for examples.
+See my https://phdru.name/Software/dotfiles/mc/mc.ext.html for examples.

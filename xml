@@ -14,7 +14,7 @@ file the command is "%cd"): cd file/xml://; in older versions it is
 cd file#xml, where "file" is the name of your XML file.
 
 See detailed installation instructions at
-http://phdru.name/Software/mc/xml_INSTALL.html.
+https://phdru.name/Software/mc/xml_INSTALL.html.
 
 The VFS represents tags as directories; the directories are numbered to
 distinguish tags with the same name; numbering also helps to sort tags by their

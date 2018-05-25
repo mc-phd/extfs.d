@@ -7,12 +7,12 @@ XML VFS для Midnight Commander
 
 
 ГДЕ
-   Дом. страничка: http://phdru.name/Russian/Software/mc/xml.html
-   Скачать:        http://phdru.name/Software/mc/xml
-    git clone http://git.phdru.name/extfs.d.git
+   Дом. страничка: https://phdru.name/Russian/Software/mc/xml.html
+   Скачать:        https://phdru.name/Software/mc/xml
+    git clone https://git.phdru.name/extfs.d.git
     git clone  git://git.phdru.name/extfs.d.git
 
-   Инструкции по установке (eng.): http://phdru.name/Software/mc/INSTALL.html
+   Инструкции по установке (eng.): https://phdru.name/Software/mc/INSTALL.html
 
 
 XML VFS показывает теги как директории; директории пронумерованы, чтобы

@@ -15,7 +15,7 @@ file the command is "%cd"): cd file/torrent://; In older versions it is
 cd file#torrent, where "file" is the name of your torrent metafile.
 
 See detailed installation instructions at
-http://phdru.name/Software/mc/torrent_INSTALL.html.
+https://phdru.name/Software/mc/torrent_INSTALL.html.
 
 The VFS lists all files and directories from the torrent metafile; all files
 appear empty, of course, but the sizes are shown. Filenames are reencoded from
