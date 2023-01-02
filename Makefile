@@ -1,5 +1,9 @@
+.SUFFIXES: # Clear the suffix list
+.SUFFIXES: .txt .html
+
+
 %.html: %.txt
-	rst2html --stylesheet=/dev/null -- $< >$@
+	rst2html.py --stylesheet=/dev/null -- $< >$@
 
 
 .PHONY: all
