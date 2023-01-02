@@ -17,6 +17,16 @@ Usual places for ``extfs.ini`` are ``/etc/mc/extfs/extfs.ini``,
 ``/usr/lib/mc/extfs/extfs.ini``, ``/usr/share/mc/extfs/extfs.ini`` or
 ``/usr/local/share/mc/extfs/extfs.ini``.
 
+Newer versions - \$HOME/.mc/extfs.d
+-----------------------------------
+
+For newer versions just drop a VFS script to ``$HOME/.mc/extfs.d`` or
+``$HOME/.local/share/mc/extfs.d/`` directory (verify directory by running
+``mc -F``). Make the script executable. Edit ``mc.ext``. Enable file types
+guessing (see above).
+
+See my https://phdru.name/Software/dotfiles/mc/mc.ext.html for examples.
+
 Older versions - extfs.ini
 --------------------------
 
@@ -40,13 +50,3 @@ ini file in section ``[Midnight-Commander]``::
 
 This has to be done using text editor - ``mc`` doesn't allow editing the
 option in its configuration editor.
-
-Newer versions - \$HOME/.mc/extfs.d
------------------------------------
-
-For newer versions just drop a VFS script to ``$HOME/.mc/extfs.d`` or
-``$HOME/.local/share/mc/extfs.d/`` directory (verify directory by running
-``mc -F``). Make the script executable. Edit ``mc.ext``. Enable file types
-guessing (see above).
-
-See my https://phdru.name/Software/dotfiles/mc/mc.ext.html for examples.

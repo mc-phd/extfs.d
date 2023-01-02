@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <title>How to install an external VFS script</title>
 <style type="text/css">
 
@@ -28,6 +28,14 @@ the simplest variant is just <tt class="docutils literal">locate extfs.ini</tt>.
 <p>Usual places for <tt class="docutils literal">extfs.ini</tt> are <tt class="docutils literal">/etc/mc/extfs/extfs.ini</tt>,
 <tt class="docutils literal">/usr/lib/mc/extfs/extfs.ini</tt>, <tt class="docutils literal">/usr/share/mc/extfs/extfs.ini</tt> or
 <tt class="docutils literal">/usr/local/share/mc/extfs/extfs.ini</tt>.</p>
+<div class="section" id="newer-versions-home-mc-extfs-d">
+<h1>Newer versions - $HOME/.mc/extfs.d</h1>
+<p>For newer versions just drop a VFS script to <tt class="docutils literal"><span class="pre">$HOME/.mc/extfs.d</span></tt> or
+<tt class="docutils literal"><span class="pre">$HOME/.local/share/mc/extfs.d/</span></tt> directory (verify directory by running
+<tt class="docutils literal">mc <span class="pre">-F</span></tt>). Make the script executable. Edit <tt class="docutils literal">mc.ext</tt>. Enable file types
+guessing (see above).</p>
+<p>See my <a class="reference external" href="https://phdru.name/Software/dotfiles/mc/mc.ext.html">https://phdru.name/Software/dotfiles/mc/mc.ext.html</a> for examples.</p>
+</div>
 <div class="section" id="older-versions-extfs-ini">
 <h1>Older versions - extfs.ini</h1>
 <p>On the system where there is a file extfs.ini a VFS script has to be
@@ -49,14 +57,6 @@ use_file_to_guess_type=1
 </pre>
 <p>This has to be done using text editor - <tt class="docutils literal">mc</tt> doesn't allow editing the
 option in its configuration editor.</p>
-</div>
-<div class="section" id="newer-versions-home-mc-extfs-d">
-<h1>Newer versions - $HOME/.mc/extfs.d</h1>
-<p>For newer versions just drop a VFS script to <tt class="docutils literal"><span class="pre">$HOME/.mc/extfs.d</span></tt> or
-<tt class="docutils literal"><span class="pre">$HOME/.local/share/mc/extfs.d/</span></tt> directory (verify directory by running
-<tt class="docutils literal">mc <span class="pre">-F</span></tt>). Make the script executable. Edit <tt class="docutils literal">mc.ext</tt>. Enable file types
-guessing (see above).</p>
-<p>See my <a class="reference external" href="https://phdru.name/Software/dotfiles/mc/mc.ext.html">https://phdru.name/Software/dotfiles/mc/mc.ext.html</a> for examples.</p>
 </div>
 </div>
 </body>
