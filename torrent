@@ -58,7 +58,7 @@ if use_locale:
     try:
         lcAll = locale.getdefaultlocale()
     except locale.Error as err:
-        print("WARNING:", err, file=sys.stderr)
+        #print("WARNING:", err, file=sys.stderr)
         lcAll = []
 
     if len(lcAll) == 2:
@@ -67,7 +67,7 @@ if use_locale:
         try:
             default_encoding = locale.getpreferredencoding()
         except locale.Error as err:
-            print("WARNING:", err, file=sys.stderr)
+            #print("WARNING:", err, file=sys.stderr)
             default_encoding = sys.getdefaultencoding()
 else:
     default_encoding = sys.getdefaultencoding()
