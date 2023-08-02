@@ -23,9 +23,11 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
+from functools import partial
 import re
 
-def tokenize(text, match=re.compile("([idel])|(\d+):|(-?\d+)").match):
+
+def tokenize(text, match=re.compile("([idel])|(\\d+):|(-?\\d+)").match):
     i = 0
     while i < len(text):
         m = match(text, i)
@@ -38,33 +40,38 @@ def tokenize(text, match=re.compile("([idel])|(\d+):|(-?\d+)").match):
         else:
             yield s
 
-def decode_item(next, token):
+
+def decode_item(next_, token):
     if token == "i":
         # integer: "i" value "e"
-        data = int(next())
-        if next() != "e":
+        data = int(next_())
+        if next_() != "e":
             raise ValueError
     elif token == "s":
         # string: "s" value (virtual tokens)
-        data = next()
+        data = next_()
     elif token == "l" or token == "d":
         # container: "l" (or "d") values "e"
         data = []
-        tok = next()
+        tok = next_()
         while tok != "e":
-            data.append(decode_item(next, tok))
-            tok = next()
+            data.append(decode_item(next_, tok))
+            try:
+                tok = next_()
+            except StopIteration:
+                break
         if token == "d":
             data = dict(zip(data[0::2], data[1::2]))
     else:
         raise ValueError
     return data
 
+
 def decode(text):
     try:
         src = tokenize(text)
-        data = decode_item(src.next, src.next())
-        for token in src: # look for more tokens
+        data = decode_item(partial(next, src), next(src))
+        for token in src:  # look for more tokens
             raise SyntaxError("trailing junk")
     except (AttributeError, ValueError, StopIteration):
         raise SyntaxError("syntax error")

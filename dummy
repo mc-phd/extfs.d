@@ -1,98 +1,100 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """Dummy VFS for Midnight Commander. Just for a test."""
 
-__version__ = "1.0.3"
+__version__ = "1.1.0"
 __author__ = "Oleg Broytman <phd@phdru.name>"
-__copyright__ = "Copyright (C) 2004-2013 PhiloSoft Design"
+__copyright__ = "Copyright (C) 2004-2023 PhiloSoft Design"
 __license__ = "GPL"
 
 
 import sys
 
+
 def log_error(msg):
-   sys.stderr.write(msg + '\n')
+    sys.stderr.write(msg + '\n')
+
 
 def error(msg):
-   log_error(msg + '\n')
-   sys.exit(1)
+    log_error(msg + '\n')
+    sys.exit(1)
 
 
 if len(sys.argv) < 2:
-   error("""\
+    error("""\
 It is not a program - it is a dummy VFS for Midnight Commander.
 Put it in $HOME/.mc/extfs.d or /usr/lib/mc/extfs.""")
 
 
 def mcdummy_list():
-   """List the entire VFS"""
-   # Ignore the VFS name (sys.argv[2])
-   # Emit a dummy listing
-   print "-r--r--r-- 1 user group 0 Jun 13 02:20 file0"
-   print "-r--r--r-- 1 user group 1 Jun 13 02:21 file1"
-   print "dr--r--r-- 1 user group 2 Jun 13 02:22 subdir"
-   print "-r--r--r-- 1 user group 3 Jun 13 02:23 subdir/file3"
-   print "-r--r--r-- 1 user group 4 Jun 13 02:23 subdir/file4"
+    """List the entire VFS"""
+    # Ignore the VFS name (sys.argv[2])
+    # Emit a dummy listing
+    print("-r--r--r-- 1 user group 0 Jun 13 02:20 file0")
+    print("-r--r--r-- 1 user group 1 Jun 13 02:21 file1")
+    print("dr--r--r-- 1 user group 2 Jun 13 02:22 subdir")
+    print("-r--r--r-- 1 user group 3 Jun 13 02:23 subdir/file3")
+    print("-r--r--r-- 1 user group 4 Jun 13 02:23 subdir/file4")
 
 
 def mcdummy_copyout():
-   """Extract a file from the VFS"""
-   # Ignore the VFS name (sys.argv[2])
-   dummy_filename = sys.argv[3]
-   real_filename = sys.argv[4]
+    """Extract a file from the VFS"""
+    # Ignore the VFS name (sys.argv[2])
+    dummy_filename = sys.argv[3]
+    real_filename = sys.argv[4]
 
-   real_file = open(real_filename, 'a')
-   real_file.write("Copy from %s\n" % dummy_filename)
-   real_file.write("Copy  to  %s\n" % real_filename)
-   real_file.close()
+    real_file = open(real_filename, 'a')
+    real_file.write("Copy from %s\n" % dummy_filename)
+    real_file.write("Copy  to   %s\n" % real_filename)
+    real_file.close()
 
 
 def mcdummy_copyin():
-   """Put a file to the VFS"""
-   # Ignore the VFS name (sys.argv[2])
-   dummy_filename = sys.argv[3]
-   real_filename = sys.argv[4]
+    """Put a file to the VFS"""
+    # Ignore the VFS name (sys.argv[2])
+    dummy_filename = sys.argv[3]
+    real_filename = sys.argv[4]
 
-   real_file = open(real_filename + "-dummy.tmp", 'a')
-   real_file.write("Copy from %s\n" % real_filename)
-   real_file.write("Copy  to  %s\n" % dummy_filename)
-   real_file.close()
+    real_file = open(real_filename + "-dummy.tmp", 'a')
+    real_file.write("Copy from %s\n" % real_filename)
+    real_file.write("Copy  to   %s\n" % dummy_filename)
+    real_file.close()
 
 
 def mcdummy_rm():
-   """Remove a file from the VFS"""
-   # Ignore the VFS name (sys.argv[2])
-   dummy_filename = sys.argv[3]
+    """Remove a file from the VFS"""
+    # Ignore the VFS name (sys.argv[2])
+    dummy_filename = sys.argv[3]
 
-   real_file = open(".dummy.tmp", 'a')
-   real_file.write("Remove %s\n" % dummy_filename)
-   real_file.close()
+    real_file = open(".dummy.tmp", 'a')
+    real_file.write("Remove %s\n" % dummy_filename)
+    real_file.close()
 
 
 def mcdummy_mkdir():
-   """Create a directory in the VFS"""
-   # Ignore the VFS name (sys.argv[2])
-   dummy_dirname = sys.argv[3]
+    """Create a directory in the VFS"""
+    # Ignore the VFS name (sys.argv[2])
+    dummy_dirname = sys.argv[3]
 
-   real_file = open(".dummy.tmp", 'a')
-   real_file.write("Create %s\n" % dummy_dirname)
-   real_file.close()
+    real_file = open(".dummy.tmp", 'a')
+    real_file.write("Create %s\n" % dummy_dirname)
+    real_file.close()
 
 
 def mcdummy_rmdir():
-   """Remove a directory from the VFS"""
-   # Ignore the VFS name (sys.argv[2])
-   dummy_dirname = sys.argv[3]
+    """Remove a directory from the VFS"""
+    # Ignore the VFS name (sys.argv[2])
+    dummy_dirname = sys.argv[3]
 
-   real_file = open(".dummy.tmp", 'a')
-   real_file.write("Remove %s\n" % dummy_dirname)
-   real_file.close()
+    real_file = open(".dummy.tmp", 'a')
+    real_file.write("Remove %s\n" % dummy_dirname)
+    real_file.close()
 
 
 g = globals()
 command = sys.argv[1]
 procname = "mcdummy_" + command
 
-if not g.has_key(procname):
-   error("Unknown command %s" % command)
+if procname not in g:
+    error("Unknown command %s" % command)
 
 g[procname]()

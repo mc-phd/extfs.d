@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """XML Virtual FileSystem for Midnight Commander
 
 The script requires Midnight Commander 3.1+
@@ -44,9 +44,9 @@ The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 
 """
 
-__version__ = "1.1.5"
+__version__ = "1.2.0"
 __author__ = "Oleg Broytman <phd@phdru.name>"
-__copyright__ = "Copyright (C) 2013-2015 PhiloSoft Design"
+__copyright__ = "Copyright (C) 2013-2023 PhiloSoft Design"
 __license__ = "GPL"
 
 # Can be None for default choice, 'lxml', 'elementtree' or 'minidom'.
@@ -62,12 +62,13 @@ import sys
 from time import localtime
 import xml.dom.minidom
 
-try:
-    import xml.etree.ElementTree as ET
-except ImportError:
-    pass
-else:
-    use_elementtree = True
+if sys.version_info[0] == 2:
+    try:
+        import xml.etree.ElementTree as ET
+    except ImportError:
+        pass
+    else:
+        use_elementtree = True
 
 try:
     import lxml.etree as etree
@@ -86,8 +87,8 @@ if use_locale:
     # Get the default charset.
     try:
         lcAll = locale.getdefaultlocale()
-    except locale.Error, err:
-        print >>sys.stderr, "WARNING:", err
+    except locale.Error as err:
+        print("WARNING:", err, file=sys.stderr)
         lcAll = []
 
     if len(lcAll) == 2:
@@ -95,8 +96,8 @@ if use_locale:
     else:
         try:
             default_encoding = locale.getpreferredencoding()
-        except locale.Error, err:
-            print >>sys.stderr, "WARNING:", err
+        except locale.Error as err:
+            print("WARNING:", err, file=sys.stderr)
             default_encoding = sys.getdefaultencoding()
 else:
     default_encoding = sys.getdefaultencoding()
@@ -137,8 +138,8 @@ class XmlVfs(object):
 
         root_comments = self.get_root_comments()
         if root_comments:
-            print "-r--r--r-- 1 user group %d %s text" % (
-                len(root_comments), self.xml_file_dt)
+            print("-r--r--r-- 1 user group %d %s text" % (
+                len(root_comments), self.xml_file_dt))
 
         self._list(self.getroot())
 
@@ -160,20 +161,20 @@ class XmlVfs(object):
             else:
                 subpath = '%s %s' % (template % n, tag)
             subpath_encoded = subpath.encode(default_encoding, "replace")
-            print "dr-xr-xr-x 1 user group 0 %s %s" % (
-                self.xml_file_dt, subpath_encoded)
+            print("dr-xr-xr-x 1 user group 0 %s %s" % (
+                self.xml_file_dt, subpath_encoded))
             if self.getattrs(element):
                 attr_text = self.attrs2text(element)
-                print "-r--r--r-- 1 user group %d %s %s/attributes" % (
-                    len(attr_text), self.xml_file_dt, subpath_encoded)
+                print("-r--r--r-- 1 user group %d %s %s/attributes" % (
+                    len(attr_text), self.xml_file_dt, subpath_encoded))
             if self.supports_namespaces and self.has_ns(element):
                 ns_text = self.ns2text(element)
-                print "-r--r--r-- 1 user group %d %s %s/namespaces" % (
-                    len(ns_text), self.xml_file_dt, subpath_encoded)
+                print("-r--r--r-- 1 user group %d %s %s/namespaces" % (
+                    len(ns_text), self.xml_file_dt, subpath_encoded))
             text = self.collect_text(element)
             if text:
-                print "-r--r--r-- 1 user group %d %s %s/text" % (
-                    len(text), self.xml_file_dt, subpath_encoded)
+                print("-r--r--r-- 1 user group %d %s %s/text" % (
+                    len(text), self.xml_file_dt, subpath_encoded))
             self._list(element, subpath)
 
     def get_tag_node(self, node, i):
@@ -471,5 +472,5 @@ try:
     g[procname]()
 except SystemExit:
     raise
-except:
+except Exception:
     logger.exception("Error during run")
