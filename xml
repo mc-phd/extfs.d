@@ -86,7 +86,10 @@ except ImportError:
 if use_locale:
     # Get the default charset.
     try:
-        lcAll = locale.getdefaultlocale()
+        if sys.version_info[:2] < (3, 11):
+            lcAll = locale.getdefaultlocale()
+        else:
+            lcAll = []
     except locale.Error as err:
         print("WARNING:", err, file=sys.stderr)
         lcAll = []
