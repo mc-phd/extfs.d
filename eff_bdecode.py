@@ -27,7 +27,7 @@ from functools import partial
 import re
 
 
-def tokenize(text, match=re.compile("([idel])|(\\d+):|(-?\\d+)").match):
+def tokenize(text, match=re.compile(b"([idel])|(\\d+):|(-?\\d+)").match):
     i = 0
     while i < len(text):
         m = match(text, i)
@@ -38,7 +38,7 @@ def tokenize(text, match=re.compile("([idel])|(\\d+):|(-?\\d+)").match):
             yield text[i:i+int(s)]
             i = i + int(s)
         else:
-            yield s
+            yield s.decode('ascii')
 
 
 def decode_item(next_, token):
