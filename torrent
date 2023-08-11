@@ -126,8 +126,7 @@ def mctorrent_list():
                 if name_utf8:
                     path = '/'.join([name_utf8] + file['path.utf-8'])
                 else:
-                    _name_utf8 = name
-                    path = '/'.join([_name_utf8] + file['path.utf-8'])
+                    path = '/'.join([name] + file['path.utf-8'])
             else:
                 if name_utf8:
                     path = '/'.join([name_utf8] + path)
