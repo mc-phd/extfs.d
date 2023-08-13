@@ -218,15 +218,13 @@ def mctorrent_copyout():
             break
 
     if torrent_filename in ('.META/private', '.META/piece length'):
-        if 'info' not in torrent:
-            torrent_error('Info absent')
         info = torrent['info']
         if torrent_filename == '.META/private':
             if 'private' not in info:
-                torrent_error('Info absent')
+                torrent_error('Private absent')
         if torrent_filename == '.META/piece length':
             if 'piece length' not in info:
-                torrent_error('Info absent')
+                torrent_error('Piece length absent')
         data = str(info[torrent_filename[len('.META/'):]])
 
     if not torrent_filename.startswith('.META/'):
@@ -242,7 +240,8 @@ def mctorrent_copyout():
 
 def mctorrent_copyin():
     """Put a file to the VFS"""
-    sys.exit("Torrent VFS doesn't support adding files (read-only filesystem)")
+    sys.exit("Torrent VFS doesn't support adding/overwriting files "
+             "(read-only filesystem)")
 
 
 def mctorrent_rm():
