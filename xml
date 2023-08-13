@@ -43,8 +43,9 @@ its text file to a real file.
 The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 
 """
+from __future__ import print_function
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2013-2023 PhiloSoft Design"
 __license__ = "GPL"
@@ -61,14 +62,6 @@ from os.path import getmtime
 import sys
 from time import localtime
 import xml.dom.minidom
-
-if sys.version_info[0] == 2:
-    try:
-        import xml.etree.ElementTree as ET
-    except ImportError:
-        pass
-    else:
-        use_elementtree = True
 
 try:
     import lxml.etree as etree
@@ -125,6 +118,21 @@ This is not a program. Put the script in $HOME/[.local/share/].mc/extfs.d or
 
 locale.setlocale(locale.LC_ALL, '')
 
+PY3 = (sys.version_info[0] >= 3)
+if PY3:
+    def output(s):
+        sys.stdout.buffer.write(s.encode(default_encoding, 'replace') + b'\n')
+else:
+    def output(s):
+        sys.stdout.write(s + '\n')
+
+    try:
+        import xml.etree.ElementTree as ET
+    except ImportError:
+        pass
+    else:
+        use_elementtree = True
+
 
 class XmlVfs(object):
     """Abstract base class"""
@@ -141,7 +149,7 @@ class XmlVfs(object):
 
         root_comments = self.get_root_comments()
         if root_comments:
-            print("-r--r--r-- 1 user group %d %s text" % (
+            output("-r--r--r-- 1 user group %d %s text" % (
                 len(root_comments), self.xml_file_dt))
 
         self._list(self.getroot())
@@ -163,21 +171,20 @@ class XmlVfs(object):
                 subpath = '%s/%s %s' % (path, template % n, tag)
             else:
                 subpath = '%s %s' % (template % n, tag)
-            subpath_encoded = subpath.encode(default_encoding, "replace")
-            print("dr-xr-xr-x 1 user group 0 %s %s" % (
-                self.xml_file_dt, subpath_encoded))
+            output("dr-xr-xr-x 1 user group 0 %s %s" % (
+                self.xml_file_dt, subpath))
             if self.getattrs(element):
                 attr_text = self.attrs2text(element)
-                print("-r--r--r-- 1 user group %d %s %s/attributes" % (
-                    len(attr_text), self.xml_file_dt, subpath_encoded))
+                output("-r--r--r-- 1 user group %d %s %s/attributes" % (
+                    len(attr_text), self.xml_file_dt, subpath))
             if self.supports_namespaces and self.has_ns(element):
                 ns_text = self.ns2text(element)
-                print("-r--r--r-- 1 user group %d %s %s/namespaces" % (
-                    len(ns_text), self.xml_file_dt, subpath_encoded))
+                output("-r--r--r-- 1 user group %d %s %s/namespaces" % (
+                    len(ns_text), self.xml_file_dt, subpath))
             text = self.collect_text(element)
             if text:
-                print("-r--r--r-- 1 user group %d %s %s/text" % (
-                    len(text), self.xml_file_dt, subpath_encoded))
+                output("-r--r--r-- 1 user group %d %s %s/text" % (
+                    len(text), self.xml_file_dt, subpath))
             self._list(element, subpath)
 
     def get_tag_node(self, node, i):
@@ -192,8 +199,7 @@ class XmlVfs(object):
     def attrs2text(self, node):
         attr_accumulator = []
         for name, value in self.getattrs(node):
-            name = self.getlocalname(name).encode(default_encoding, "replace")
-            value = value.encode(default_encoding, "replace")
+            name = self.getlocalname(name)
             attr_accumulator.append("%s=%s" % (name, value))
         return '\n'.join(attr_accumulator)
 
@@ -223,7 +229,7 @@ class MiniDOMXmlVfs(XmlVfs):
                 xml_error("Unknown node type %d" % element.nodeType)
             if text:
                 text_accumulator.append(text)
-        return '\n'.join(text_accumulator).encode(default_encoding, "replace")
+        return '\n'.join(text_accumulator)
 
     def getroot(self):
         return self.document
@@ -263,8 +269,7 @@ if use_elementtree or use_lxml:
                 text = node.tail.strip()
                 if text:
                     text_accumulator.append(text)
-            return '\n'.join(text_accumulator).encode(
-                default_encoding, "replace")
+            return '\n'.join(text_accumulator)
 
         def getchildren(self, node):
             return list(node)
@@ -315,8 +320,7 @@ if use_elementtree:
                 if not self.istag(element):
                     text = u"<!--%s-->" % element.text
                     text_accumulator.append(text)
-            return '\n'.join(text_accumulator).encode(
-                default_encoding, "replace")
+            return '\n'.join(text_accumulator)
 
         def getlocalname(self, name):
             if name.startswith('{'):
@@ -340,8 +344,7 @@ if use_lxml:
                     tag=etree.Comment, preceding=True):
                 text = u"<!--%s-->" % element.text
                 text_accumulator.append(text)
-            return '\n'.join(text_accumulator).encode(
-                default_encoding, "replace")
+            return '\n'.join(text_accumulator)
 
         def getlocalname(self, name):
             return etree.QName(name).localname
@@ -362,11 +365,8 @@ if use_lxml:
         def ns2text(self, node):
             ns_accumulator = []
             for name, value in self._get_local_ns(node).items():
-                if name:
-                    name = name.encode(default_encoding, "replace")
-                else:
+                if not name:
                     name = 'xmlns'
-                value = value.encode(default_encoding, "replace")
                 ns_accumulator.append("%s=%s" % (name, value))
             return '\n'.join(ns_accumulator)
 
