@@ -35,7 +35,7 @@ The filesystem is, naturally, read-only.
 
 """
 
-__version__ = "1.3.0"
+__version__ = "1.3.1"
 __author__ = "Oleg Broytman <phd@phdru.name>"
 __copyright__ = "Copyright (C) 2010-2023 PhiloSoft Design"
 __license__ = "GPL"
@@ -94,12 +94,17 @@ This is not a program. Put the script in $HOME/[.local/share/].mc/extfs.d or
 
 locale.setlocale(locale.LC_ALL, '')
 
+PY3 = (sys.version_info[0] >= 3)
+if PY3:
+    def output(s):
+        sys.stdout.buffer.write(s.encode(default_encoding, 'replace') + b'\n')
+else:
+    def output(s):
+        sys.stdout.write(s + '\n')
+
 
 def mctorrent_list():
     """List the entire VFS"""
-
-    if 'info' not in torrent:
-        torrent_error('Info absent')
 
     info = torrent['info']
     if 'name' not in info and 'name.utf-8' not in info:
@@ -181,10 +186,10 @@ def mctorrent_list():
         dt = decode_datetime(getmtime(sys.argv[2]))
 
     for name in sorted(dirs):
-        print("dr-xr-xr-x 1 user group 0 %s %s" % (dt, name))
+        output("dr-xr-xr-x 1 user group 0 %s %s" % (dt, name))
 
     for name, size in sorted(paths):
-        print("-r--r--r-- 1 user group %d %s %s" % (size, dt, name))
+        output("-r--r--r-- 1 user group %d %s %s" % (size, dt, name))
 
 
 def mctorrent_copyout():
@@ -233,7 +238,7 @@ def mctorrent_copyout():
     if data is None:
         torrent_error('Unknown file name')
     else:
-        outfile = open(real_filename, 'w')
+        outfile = open(real_filename, 'wt')
         outfile.write(data)
         outfile.close()
 
@@ -264,14 +269,59 @@ def torrent_error(error_str):
     sys.exit(1)
 
 
+def decode_dict(d, encoding):
+    new_d = {}
+    for k in d:
+        v = d[k]
+        k = k.decode(encoding)
+        if isinstance(v, dict):
+            v = decode_dict(v, encoding)
+        elif isinstance(v, list):
+            v = decode_list(v, encoding)
+        elif isinstance(v, bytes):
+            v = v.decode(encoding)
+        new_d[k] = v
+    return new_d
+
+
+def decode_list(l, encoding):
+    new_l = []
+    for v in l:
+        if isinstance(v, dict):
+            v = decode_dict(v, encoding)
+        elif isinstance(v, list):
+            v = decode_list(v, encoding)
+        elif isinstance(v, bytes):
+            v = v.decode(encoding)
+        new_l.append(v)
+    return new_l
+
+
 def decode_torrent():
     try:
         torrent_file = open(sys.argv[2], 'rb')
         data = torrent_file.read()
         torrent_file.close()
-        return decode(data)
+        torrent = decode(data)
     except IOError as error_str:
         torrent_error(error_str)
+
+    del torrent[b'info'][b'pieces']
+    if b'info' not in torrent:
+        torrent_error('Info absent')
+
+    if PY3:
+        codepage = torrent.get(b'codepage', None)
+        encoding = torrent.get(b'encoding', None)
+        if encoding:
+            encoding = encoding.decode('ascii')
+        elif codepage:
+            encoding = codepage.decode('ascii')
+
+    if PY3 and encoding:
+        return decode_dict(torrent, encoding)
+    else:
+        return torrent
 
 
 def decode_datetime_asc(dt):
