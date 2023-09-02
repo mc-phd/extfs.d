@@ -317,11 +317,11 @@ def decode_torrent():
             encoding = encoding.decode('ascii')
         elif codepage:
             encoding = codepage.decode('ascii')
-
-    if PY3 and encoding:
+        else:
+            encoding = 'ascii'
         return decode_dict(torrent, encoding)
-    else:
-        return torrent
+
+    return torrent
 
 
 def decode_datetime_asc(dt):
