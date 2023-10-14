@@ -318,7 +318,12 @@ def decode_torrent():
         elif codepage:
             encoding = codepage.decode('ascii')
         else:
-            encoding = 'ascii'
+            for encoding in ('ascii', 'utf-8', default_encoding):
+                try:
+                    return decode_dict(torrent, encoding)
+                except UnicodeDecodeError:
+                    pass
+            torrent_error('UnicodeDecodeError')
         return decode_dict(torrent, encoding)
 
     return torrent
