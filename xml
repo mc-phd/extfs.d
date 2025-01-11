@@ -2,7 +2,7 @@
 """XML Virtual FileSystem for Midnight Commander
 
 The script requires Midnight Commander 3.1+
-(http://www.midnight-commander.org/), Python 2.4+ (http://www.python.org/).
+(http://www.midnight-commander.org/), Python 2.7+ (http://www.python.org/).
 
 For mc 4.7+ just put the script in $HOME/[.local/share/].mc/extfs.d.
 For older versions put it in /usr/[local/][lib|share]/mc/extfs
@@ -45,9 +45,9 @@ The VFS was inspired by a FUSE xmlfs: https://github.com/halhen/xmlfs
 """
 from __future__ import print_function
 
-__version__ = "1.2.1"
+__version__ = "1.2.1.post1"
 __author__ = "Oleg Broytman <phd@phdru.name>"
-__copyright__ = "Copyright (C) 2013-2023 PhiloSoft Design"
+__copyright__ = "Copyright (C) 2013-2025 PhiloSoft Design"
 __license__ = "GPL"
 
 # Can be None for default choice, 'lxml', 'elementtree' or 'minidom'.
