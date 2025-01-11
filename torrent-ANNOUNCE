@@ -8,6 +8,11 @@ Midnight Commander.
 
 WHAT'S NEW
 
+Version 1.4.1 (2025-01-11)
+
+   Fix a problem with torrents that set creation_date too far in the future:
+   limit the year to 9999.
+
 Version 1.4.0 (2025-01-11)
 
    Include eff_bdecode.py into the code.
