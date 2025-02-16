@@ -2,7 +2,7 @@
 """XML Virtual FileSystem for Midnight Commander
 
 The script requires Midnight Commander 3.1+
-(http://www.midnight-commander.org/), Python 2.7+ (http://www.python.org/).
+(https://www.midnight-commander.org/), Python 2.7+ (https://www.python.org/).
 
 For mc 4.7+ just put the script in $HOME/[.local/share/].mc/extfs.d.
 For older versions put it in /usr/[local/][lib|share]/mc/extfs
@@ -284,7 +284,7 @@ if use_elementtree or use_lxml:
 if use_elementtree:
     class ElementTreeXmlVfs(CommonEtreeXmlVfs):
         def parse(self):
-            # Copied from http://effbot.org/zone/element-pi.htm
+            # Copied from effbot.org/zone/element-pi.htm
 
             class PIParser(ET.XMLTreeBuilder):
 
