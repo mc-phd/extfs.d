@@ -29,11 +29,11 @@ def mcdummy_list():
     """List the entire VFS"""
     # Ignore the VFS name (sys.argv[2])
     # Emit a dummy listing
-    print("-r--r--r-- 1 user group 0 Jun 13 02:20 file0")
-    print("-r--r--r-- 1 user group 1 Jun 13 02:21 file1")
-    print("dr--r--r-- 1 user group 2 Jun 13 02:22 subdir")
-    print("-r--r--r-- 1 user group 3 Jun 13 02:23 subdir/file3")
-    print("-r--r--r-- 1 user group 4 Jun 13 02:23 subdir/file4")
+    print("-r--r--r-- 1 0 0 0 Jun 13 02:20 file0")
+    print("-r--r--r-- 1 0 0 1 Jun 13 02:21 file1")
+    print("dr--r--r-- 1 0 0 2 Jun 13 02:22 subdir")
+    print("-r--r--r-- 1 0 0 3 Jun 13 02:23 subdir/file3")
+    print("-r--r--r-- 1 0 0 4 Jun 13 02:23 subdir/file4")
 
 
 def mcdummy_copyout():

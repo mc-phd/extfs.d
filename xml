@@ -149,7 +149,7 @@ class XmlVfs(object):
 
         root_comments = self.get_root_comments()
         if root_comments:
-            output("-r--r--r-- 1 user group %d %s text" % (
+            output("-r--r--r-- 1 0 0 %d %s text" % (
                 len(root_comments), self.xml_file_dt))
 
         self._list(self.getroot())
@@ -171,19 +171,19 @@ class XmlVfs(object):
                 subpath = '%s/%s %s' % (path, template % n, tag)
             else:
                 subpath = '%s %s' % (template % n, tag)
-            output("dr-xr-xr-x 1 user group 0 %s %s" % (
+            output("dr-xr-xr-x 1 0 0 0 %s %s" % (
                 self.xml_file_dt, subpath))
             if self.getattrs(element):
                 attr_text = self.attrs2text(element)
-                output("-r--r--r-- 1 user group %d %s %s/attributes" % (
+                output("-r--r--r-- 1 0 0 %d %s %s/attributes" % (
                     len(attr_text), self.xml_file_dt, subpath))
             if self.supports_namespaces and self.has_ns(element):
                 ns_text = self.ns2text(element)
-                output("-r--r--r-- 1 user group %d %s %s/namespaces" % (
+                output("-r--r--r-- 1 0 0 %d %s %s/namespaces" % (
                     len(ns_text), self.xml_file_dt, subpath))
             text = self.collect_text(element)
             if text:
-                output("-r--r--r-- 1 user group %d %s %s/text" % (
+                output("-r--r--r-- 1 0 0 %d %s %s/text" % (
                     len(text), self.xml_file_dt, subpath))
             self._list(element, subpath)
 
