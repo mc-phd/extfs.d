@@ -396,7 +396,7 @@ def decode_torrent():
         if encoding:
             encoding = encoding.decode('ascii')
         elif codepage:
-            encoding = codepage.decode('ascii')
+            encoding = str(codepage)
         else:
             for encoding in ('ascii', 'utf-8', default_encoding):
                 try:
